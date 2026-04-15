@@ -10,7 +10,6 @@
 <title>Tesis Denetim</title>
 
 <link rel="manifest" href='data:application/manifest+json,{"name":"Tesis Denetim","short_name":"Denetim","start_url":".","display":"standalone","background_color":"%23f5f3ee","theme_color":"%231a3a52","icons":[{"src":"data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 192 192%22><rect width=%22192%22 height=%22192%22 fill=%22%231a3a52%22 rx=%2228%22/><text x=%2296%22 y=%22128%22 font-size=%22110%22 text-anchor=%22middle%22 fill=%22%23f5f3ee%22 font-family=%22serif%22 font-weight=%22bold%22>D</text></svg>","sizes":"192x192","type":"image/svg+xml"}]}'>
-
 <link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%231a3a52' rx='15'/><text x='50' y='68' font-size='58' text-anchor='middle' fill='%23f5f3ee' font-family='serif' font-weight='bold'>D</text></svg>">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -19,565 +18,331 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Lora:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap');
+
 :root {
-  --bg: #f5f3ee;
-  --paper: #fdfcf8;
-  --ink: #1a2332;
-  --ink-soft: #4a5568;
-  --muted: #8b8680;
-  --line: #d4cec2;
-  --line-soft: #e8e3d6;
-  --primary: #1a3a52;
-  --primary-soft: #2c5777;
-  --accent: #b8542a;
-  --ok: #3d6b3d;
-  --ok-bg: #e3ebd9;
-  --no: #a32d2d;
-  --no-bg: #f4dad7;
-  --warn: #c97a1f;
+  --bg: #f5f3ee; --paper: #fdfcf8; --ink: #1a2332; --ink-soft: #4a5568; --muted: #8b8680;
+  --line: #d4cec2; --line-soft: #e8e3d6;
+  --primary: #1a3a52; --primary-soft: #2c5777; --accent: #b8542a;
+  --ok: #3d6b3d; --ok-bg: #e3ebd9; --no: #a32d2d; --no-bg: #f4dad7;
+  --warn: #c97a1f; --warn-bg: #fbeed6;
   --shadow-sm: 0 1px 2px rgba(26,35,50,0.06);
   --shadow-md: 0 4px 12px rgba(26,35,50,0.10);
   --shadow-lg: 0 12px 32px rgba(26,35,50,0.16);
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-html, body {
-  margin: 0; padding: 0;
-  background: var(--bg);
-  color: var(--ink);
-  font-family: 'Lora', Georgia, 'Times New Roman', serif;
-  font-size: 16px;
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-  overscroll-behavior: none;
+html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink);
+  font-family: 'Lora', Georgia, serif; font-size: 16px; line-height: 1.5;
+  -webkit-font-smoothing: antialiased; overscroll-behavior: none;
+  min-height: 100vh; min-height: 100dvh;
 }
-
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Lora:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap');
-
-body {
-  font-family: 'Lora', Georgia, serif;
-  min-height: 100vh;
-  min-height: 100dvh;
-}
-
 .display { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-spacing: -0.01em; }
 .mono { font-family: 'JetBrains Mono', monospace; }
 
 /* === HEADER === */
-.appbar {
-  background: var(--primary);
-  color: var(--paper);
-  padding: 14px 16px;
-  position: sticky; top: 0;
-  z-index: 100;
-  display: flex; align-items: center; gap: 12px;
-  box-shadow: var(--shadow-md);
-  padding-top: max(14px, env(safe-area-inset-top));
+.appbar { background: var(--primary); color: var(--paper); padding: 14px 16px;
+  position: sticky; top: 0; z-index: 100; display: flex; align-items: center; gap: 12px;
+  box-shadow: var(--shadow-md); padding-top: max(14px, env(safe-area-inset-top));
 }
-.appbar h1 { 
-  font-family: 'Fraunces', serif;
-  font-size: 18px; margin: 0; font-weight: 600;
-  flex: 1;
-  letter-spacing: 0.01em;
+.appbar h1 { font-family: 'Fraunces', serif; font-size: 18px; margin: 0;
+  font-weight: 600; flex: 1; letter-spacing: 0.01em;
 }
 .appbar .back-btn, .appbar .icon-btn {
   background: transparent; border: 1px solid rgba(245,243,238,0.25);
-  color: var(--paper); padding: 8px 12px;
-  border-radius: 6px; cursor: pointer;
-  font-family: inherit; font-size: 14px;
-  display: flex; align-items: center; gap: 6px;
+  color: var(--paper); padding: 8px 12px; border-radius: 6px; cursor: pointer;
+  font-family: inherit; font-size: 14px; display: flex; align-items: center; gap: 6px;
   min-height: 38px;
 }
 .appbar .back-btn:active, .appbar .icon-btn:active { background: rgba(245,243,238,0.15); }
 
-/* === SCREENS === */
 .screen { display: none; padding-bottom: 100px; }
 .screen.active { display: block; }
 .container { max-width: 900px; margin: 0 auto; padding: 16px; }
 
-/* === HOME SCREEN === */
-.hero {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-soft) 100%);
-  color: var(--paper);
-  padding: 32px 20px 28px;
-  text-align: center;
-  border-bottom: 4px solid var(--accent);
-  position: relative;
-  overflow: hidden;
+.hero { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-soft) 100%);
+  color: var(--paper); padding: 32px 20px 28px; text-align: center;
+  border-bottom: 4px solid var(--accent); position: relative; overflow: hidden;
 }
-.hero::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: 
-    radial-gradient(circle at 20% 50%, rgba(184,84,42,0.08) 0%, transparent 50%),
+.hero::before { content: ''; position: absolute; inset: 0;
+  background-image: radial-gradient(circle at 20% 50%, rgba(184,84,42,0.08) 0%, transparent 50%),
     radial-gradient(circle at 80% 80%, rgba(245,243,238,0.05) 0%, transparent 50%);
   pointer-events: none;
 }
 .hero-inner { position: relative; z-index: 1; }
-.hero .label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  opacity: 0.7;
-  margin-bottom: 8px;
+.hero .label { font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.7; margin-bottom: 8px;
 }
-.hero h2 {
-  font-family: 'Fraunces', serif;
-  font-size: 28px; margin: 0 0 6px;
-  font-weight: 600;
-  line-height: 1.15;
+.hero h2 { font-family: 'Fraunces', serif; font-size: 28px; margin: 0 0 6px;
+  font-weight: 600; line-height: 1.15;
 }
 .hero p { margin: 0; opacity: 0.85; font-size: 14px; }
 
 .actions { padding: 20px 16px; display: flex; flex-direction: column; gap: 12px; }
-.btn-primary {
-  background: var(--primary); color: var(--paper);
-  border: none; padding: 18px 22px;
-  font-family: 'Fraunces', serif; font-size: 17px; font-weight: 600;
-  border-radius: 8px;
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center; gap: 10px;
-  min-height: 56px;
-  box-shadow: var(--shadow-md);
+.btn-primary { background: var(--primary); color: var(--paper); border: none;
+  padding: 18px 22px; font-family: 'Fraunces', serif; font-size: 17px; font-weight: 600;
+  border-radius: 8px; cursor: pointer; display: flex; align-items: center;
+  justify-content: center; gap: 10px; min-height: 56px; box-shadow: var(--shadow-md);
   transition: transform 0.1s;
 }
 .btn-primary:active { transform: scale(0.98); box-shadow: var(--shadow-sm); }
 .btn-primary.accent { background: var(--accent); }
 
-.btn-secondary {
-  background: var(--paper); color: var(--ink);
-  border: 1.5px solid var(--line);
-  padding: 14px 18px;
-  font-family: 'Lora', serif; font-size: 15px; font-weight: 500;
-  border-radius: 8px;
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-  min-height: 48px;
+.btn-secondary { background: var(--paper); color: var(--ink); border: 1.5px solid var(--line);
+  padding: 14px 18px; font-family: 'Lora', serif; font-size: 15px; font-weight: 500;
+  border-radius: 8px; cursor: pointer; display: flex; align-items: center;
+  justify-content: center; gap: 8px; min-height: 48px;
 }
 .btn-secondary:active { background: var(--line-soft); }
 
-/* === DENETIM LIST === */
-.section-title {
-  font-family: 'Fraunces', serif;
-  font-size: 13px;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: var(--muted);
-  margin: 24px 16px 8px;
-  font-weight: 600;
+.section-title { font-family: 'Fraunces', serif; font-size: 13px;
+  text-transform: uppercase; letter-spacing: 0.15em; color: var(--muted);
+  margin: 24px 16px 8px; font-weight: 600;
 }
 
 .denetim-list { padding: 0 16px; display: flex; flex-direction: column; gap: 10px; }
-
-.denetim-card {
-  background: var(--paper);
-  border: 1px solid var(--line);
-  border-left: 4px solid var(--primary);
-  border-radius: 6px;
-  padding: 14px 16px;
-  cursor: pointer;
-  display: flex; align-items: center; gap: 12px;
-  box-shadow: var(--shadow-sm);
+.denetim-card { background: var(--paper); border: 1px solid var(--line);
+  border-left: 4px solid var(--primary); border-radius: 6px; padding: 14px 16px;
+  cursor: pointer; display: flex; align-items: center; gap: 12px; box-shadow: var(--shadow-sm);
 }
 .denetim-card:active { background: var(--line-soft); }
 .denetim-card.completed { border-left-color: var(--ok); }
 .denetim-card-body { flex: 1; min-width: 0; }
-.denetim-card-title { 
-  font-family: 'Fraunces', serif;
-  font-weight: 600; font-size: 16px;
-  margin: 0 0 2px;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+.denetim-card-title { font-family: 'Fraunces', serif; font-weight: 600; font-size: 16px;
+  margin: 0 0 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.denetim-card-meta { 
-  font-size: 12px; color: var(--muted);
+.denetim-card-meta { font-size: 12px; color: var(--muted);
   font-family: 'JetBrains Mono', monospace;
 }
-.denetim-card-stat {
-  font-family: 'Fraunces', serif;
-  font-weight: 600;
-  font-size: 18px;
-  padding: 6px 10px;
-  border-radius: 6px;
-  min-width: 56px;
-  text-align: center;
+.denetim-card-stat { font-family: 'Fraunces', serif; font-weight: 600; font-size: 18px;
+  padding: 6px 10px; border-radius: 6px; min-width: 56px; text-align: center;
 }
 .stat-good { background: var(--ok-bg); color: var(--ok); }
 .stat-bad { background: var(--no-bg); color: var(--no); }
 .stat-neutral { background: var(--line-soft); color: var(--ink-soft); }
 
-.empty-state {
-  text-align: center;
-  padding: 48px 24px;
-  color: var(--muted);
-}
+.empty-state { text-align: center; padding: 48px 24px; color: var(--muted); }
 .empty-state .icon { font-size: 48px; margin-bottom: 12px; opacity: 0.5; }
 .empty-state p { margin: 4px 0; font-size: 14px; }
 
+.tur-list { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.tur-card { background: var(--paper); border: 1.5px solid var(--line); border-radius: 8px;
+  padding: 16px 18px; cursor: pointer; display: flex; align-items: center; gap: 14px;
+  box-shadow: var(--shadow-sm); transition: all 0.15s;
+}
+.tur-card:active { transform: scale(0.99); border-color: var(--primary); background: var(--line-soft); }
+.tur-card.disabled { opacity: 0.5; cursor: not-allowed; }
+.tur-card-icon { font-size: 28px; }
+.tur-card-body { flex: 1; }
+.tur-card-title { font-family: 'Fraunces', serif; font-weight: 600; font-size: 16px; margin: 0 0 2px; }
+.tur-card-meta { font-size: 12px; color: var(--muted); }
+.tur-card-meta.soon { color: var(--accent); }
+
 /* === FORM === */
-.form-card {
-  background: var(--paper);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 14px;
-  box-shadow: var(--shadow-sm);
+.form-card { background: var(--paper); border: 1px solid var(--line); border-radius: 8px;
+  padding: 16px; margin-bottom: 14px; box-shadow: var(--shadow-sm);
 }
 .form-row { margin-bottom: 12px; }
 .form-row:last-child { margin-bottom: 0; }
-.form-row label {
-  display: block;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--muted);
-  margin-bottom: 5px;
+.form-row label { display: block; font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--muted); margin-bottom: 5px;
 }
 .form-row input, .form-row textarea, .form-row select {
-  width: 100%;
-  padding: 12px 14px;
-  border: 1.5px solid var(--line);
-  border-radius: 6px;
-  font-family: 'Lora', serif;
-  font-size: 16px;
-  background: var(--bg);
-  color: var(--ink);
+  width: 100%; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 6px;
+  font-family: 'Lora', serif; font-size: 16px; background: var(--bg); color: var(--ink);
   transition: border-color 0.15s;
 }
 .form-row input:focus, .form-row textarea:focus, .form-row select:focus {
-  outline: none;
-  border-color: var(--primary);
-  background: var(--paper);
+  outline: none; border-color: var(--primary); background: var(--paper);
 }
 .form-row textarea { resize: vertical; min-height: 70px; line-height: 1.45; }
 
 /* === SUMMARY BAR === */
-.summary-bar {
-  position: sticky;
-  top: 60px;
-  background: var(--paper);
-  border-bottom: 1px solid var(--line);
-  padding: 12px 16px;
-  display: flex; gap: 8px;
-  z-index: 50;
-  box-shadow: var(--shadow-sm);
+.summary-bar { position: sticky; top: 60px; background: var(--paper);
+  border-bottom: 1px solid var(--line); padding: 12px 16px; display: flex; gap: 8px;
+  z-index: 50; box-shadow: var(--shadow-sm);
 }
-.sum-pill {
-  flex: 1;
-  text-align: center;
-  padding: 8px 6px;
-  border-radius: 6px;
+.sum-pill { flex: 1; text-align: center; padding: 8px 6px; border-radius: 6px;
   font-family: 'JetBrains Mono', monospace;
 }
-.sum-pill .num { 
-  display: block; 
-  font-family: 'Fraunces', serif;
-  font-size: 22px; font-weight: 600; 
-  line-height: 1; 
+.sum-pill .num { display: block; font-family: 'Fraunces', serif;
+  font-size: 22px; font-weight: 600; line-height: 1;
 }
-.sum-pill .lbl { 
-  font-size: 10px; 
-  letter-spacing: 0.1em;
-  text-transform: uppercase; 
-  opacity: 0.7; 
-  margin-top: 3px;
-  display: block;
+.sum-pill .lbl { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+  opacity: 0.7; margin-top: 3px; display: block;
 }
-.sum-var { background: var(--ok-bg); color: var(--ok); }
-.sum-yok { background: var(--no-bg); color: var(--no); }
+.sum-ok { background: var(--ok-bg); color: var(--ok); }
+.sum-no { background: var(--no-bg); color: var(--no); }
 .sum-bos { background: var(--line-soft); color: var(--ink-soft); }
 .sum-pct { background: var(--primary); color: var(--paper); }
 
-/* === MAHAL & MADDE === */
-.mahal-header {
-  font-family: 'Fraunces', serif;
-  font-weight: 600;
-  font-size: 13px;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: var(--accent);
-  padding: 20px 16px 8px;
-  display: flex; align-items: center; gap: 10px;
+/* === BOLUM (chapter) === */
+.bolum-header { padding: 24px 16px 4px; }
+.bolum-title { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 600;
+  color: var(--primary); margin: 0 0 4px;
+}
+.bolum-subtitle { font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase;
+}
+
+.mahal-header { font-family: 'Fraunces', serif; font-weight: 600; font-size: 13px;
+  text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent);
+  padding: 18px 16px 8px; display: flex; align-items: center; gap: 10px;
 }
 .mahal-header::before, .mahal-header::after {
-  content: '';
-  height: 1px;
-  background: var(--line);
-  flex: 1;
+  content: ''; height: 1px; background: var(--line); flex: 1;
 }
 .mahal-header span { white-space: nowrap; }
 
-.madde {
-  background: var(--paper);
-  margin: 0 16px 8px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
+/* Alternatif grup */
+.alt-group { background: var(--warn-bg); border: 1.5px solid var(--warn);
+  border-radius: 10px; margin: 8px 16px; padding: 12px 14px;
 }
-.madde-head {
-  padding: 12px 14px;
-  display: flex; gap: 10px; align-items: flex-start;
+.alt-group-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.alt-group-icon { font-size: 18px; }
+.alt-group-title { font-family: 'Fraunces', serif; font-weight: 600; font-size: 14px;
+  color: var(--warn); flex: 1;
 }
-.madde-no {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--muted);
-  min-width: 22px;
-  margin-top: 2px;
+.alt-group-status { font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  padding: 4px 8px; border-radius: 4px; background: white; color: var(--warn);
 }
-.madde-text {
-  flex: 1;
-  font-size: 15px;
-  line-height: 1.4;
-  color: var(--ink);
-}
-.madde-ref {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  color: var(--muted);
-  margin-top: 4px;
-  letter-spacing: 0.05em;
-}
-.madde-controls {
-  display: flex;
-  border-top: 1px solid var(--line-soft);
-}
-.btn-status {
-  flex: 1;
-  padding: 14px 8px;
-  background: transparent;
-  border: none;
-  border-right: 1px solid var(--line-soft);
-  font-family: 'Fraunces', serif;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  color: var(--muted);
-  min-height: 48px;
-  letter-spacing: 0.05em;
-}
-.btn-status:last-child { border-right: none; }
-.btn-status:active { background: var(--line-soft); }
-.btn-status.active.var { background: var(--ok-bg); color: var(--ok); }
-.btn-status.active.yok { background: var(--no-bg); color: var(--no); }
-.btn-status.active.na { background: var(--line-soft); color: var(--ink-soft); }
-.madde.has-var { border-left: 4px solid var(--ok); }
-.madde.has-yok { border-left: 4px solid var(--no); }
-.madde.has-na { border-left: 4px solid var(--muted); }
+.alt-group-status.satisfied { background: var(--ok); color: white; }
+.alt-group .madde { margin: 6px 0; }
 
-.aciklama-toggle {
-  padding: 10px 14px;
-  background: var(--line-soft);
-  border: none;
-  width: 100%;
-  text-align: left;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--ink-soft);
-  cursor: pointer;
-  border-top: 1px solid var(--line);
+/* === MADDE === */
+.madde { background: var(--paper); margin: 0 16px 8px; border: 1px solid var(--line);
+  border-radius: 8px; overflow: hidden; box-shadow: var(--shadow-sm);
 }
-.aciklama-area {
-  padding: 12px 14px;
+.alt-group .madde { margin: 6px 0; box-shadow: none; border: 1px solid var(--line); }
+
+.madde-head { padding: 12px 14px; display: flex; gap: 10px; align-items: flex-start; }
+.madde-no { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600;
+  color: var(--muted); min-width: 28px; margin-top: 2px;
+}
+.madde-text { flex: 1; font-size: 15px; line-height: 1.4; color: var(--ink); }
+.madde-ref { font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  color: var(--muted); margin-top: 4px; letter-spacing: 0.05em;
+}
+.madde.has-ok { border-left: 4px solid var(--ok); }
+.madde.has-no { border-left: 4px solid var(--no); }
+.madde.has-na { border-left: 4px solid var(--muted); }
+.madde.has-warn { border-left: 4px solid var(--warn); }
+
+/* Cevap kontrolleri */
+.madde-controls { display: flex; flex-wrap: wrap; border-top: 1px solid var(--line-soft); }
+.btn-ans { flex: 1; min-width: 33%; padding: 14px 8px; background: transparent;
+  border: none; border-right: 1px solid var(--line-soft);
   border-top: 1px solid var(--line-soft);
-  display: none;
+  font-family: 'Fraunces', serif; font-size: 13px; font-weight: 600; cursor: pointer;
+  color: var(--muted); min-height: 48px; letter-spacing: 0.03em;
+}
+.btn-ans:active { background: var(--line-soft); }
+.btn-ans.active.pos { background: var(--ok-bg); color: var(--ok); }
+.btn-ans.active.neg { background: var(--no-bg); color: var(--no); }
+.btn-ans.active.na { background: var(--line-soft); color: var(--ink-soft); }
+
+/* Sayısal/tarih/metin input */
+.madde-input-area { padding: 12px 14px; border-top: 1px solid var(--line-soft);
   background: var(--bg);
 }
+.madde-input-row { display: flex; gap: 8px; align-items: center; }
+.madde-input-row input { flex: 1; padding: 11px 12px; border: 1.5px solid var(--line);
+  border-radius: 6px; font-family: 'Lora', serif; font-size: 16px;
+  background: var(--paper); color: var(--ink);
+}
+.madde-input-row input:focus { outline: none; border-color: var(--primary); }
+.madde-input-row .unit { font-family: 'JetBrains Mono', monospace; font-size: 13px;
+  color: var(--muted); padding: 0 4px;
+}
+.madde-rule-hint { font-size: 12px; color: var(--muted); margin-top: 6px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.madde-rule-hint.violated { color: var(--no); font-weight: 600; }
+.madde-rule-hint.satisfied { color: var(--ok); font-weight: 600; }
+
+/* Açıklama */
+.aciklama-toggle { padding: 10px 14px; background: var(--line-soft); border: none;
+  width: 100%; text-align: left; font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--ink-soft); cursor: pointer; border-top: 1px solid var(--line);
+}
+.aciklama-area { padding: 12px 14px; border-top: 1px solid var(--line-soft);
+  display: none; background: var(--bg);
+}
 .aciklama-area.open { display: block; }
-.aciklama-area textarea {
-  width: 100%;
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  padding: 10px;
-  font-family: 'Lora', serif;
-  font-size: 15px;
-  resize: vertical;
-  min-height: 60px;
-  background: var(--paper);
-  color: var(--ink);
+.aciklama-area textarea { width: 100%; border: 1px solid var(--line);
+  border-radius: 6px; padding: 10px; font-family: 'Lora', serif; font-size: 15px;
+  resize: vertical; min-height: 60px; background: var(--paper); color: var(--ink);
 }
 .aciklama-area textarea:focus { outline: none; border-color: var(--primary); }
 .has-aciklama { color: var(--accent); }
 
-.ack-tools {
-  display: flex; align-items: center; gap: 10px;
-  margin-top: 8px;
-}
-.mic-btn {
-  background: var(--paper);
-  color: var(--primary);
-  border: 1.5px solid var(--primary);
-  padding: 10px 14px;
-  border-radius: 6px;
-  font-family: 'Lora', serif;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex; align-items: center; gap: 8px;
-  min-height: 40px;
-  transition: all 0.15s;
+/* Mikrofon */
+.ack-tools { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+.mic-btn { background: var(--paper); color: var(--primary); border: 1.5px solid var(--primary);
+  padding: 10px 14px; border-radius: 6px; font-family: 'Lora', serif;
+  font-size: 14px; font-weight: 500; cursor: pointer; display: flex;
+  align-items: center; gap: 8px; min-height: 40px; transition: all 0.15s;
 }
 .mic-btn:active { transform: scale(0.97); }
 .mic-icon { font-size: 16px; line-height: 1; }
-.mic-btn.recording {
-  background: var(--no);
-  color: white;
-  border-color: var(--no);
+.mic-btn.recording { background: var(--no); color: white; border-color: var(--no);
   animation: pulse 1.4s infinite;
 }
-.mic-btn.recording .mic-label::after {
-  content: " — Durdur";
-}
+.mic-btn.recording .mic-label::after { content: " — Durdur"; }
 @keyframes pulse {
   0%, 100% { box-shadow: 0 0 0 0 rgba(163, 45, 45, 0.5); }
   50% { box-shadow: 0 0 0 8px rgba(163, 45, 45, 0); }
 }
-.mic-hint {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  color: var(--muted);
-  flex: 1;
+.mic-hint { font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: var(--muted); flex: 1;
 }
 .mic-hint.error { color: var(--no); }
 .mic-hint.live { color: var(--accent); }
 
-/* === FAB / FLOATING ACTIONS === */
-.fab-row {
-  position: fixed;
-  bottom: 16px; left: 16px; right: 16px;
-  display: flex; gap: 10px;
-  z-index: 90;
-  padding-bottom: env(safe-area-inset-bottom);
+/* FAB */
+.fab-row { position: fixed; bottom: 16px; left: 16px; right: 16px;
+  display: flex; gap: 10px; z-index: 90; padding-bottom: env(safe-area-inset-bottom);
 }
-.fab {
-  flex: 1;
-  background: var(--primary);
-  color: var(--paper);
-  border: none;
-  padding: 16px;
-  border-radius: 8px;
-  font-family: 'Fraunces', serif;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: var(--shadow-lg);
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-  min-height: 54px;
+.fab { flex: 1; background: var(--primary); color: var(--paper); border: none;
+  padding: 16px; border-radius: 8px; font-family: 'Fraunces', serif;
+  font-size: 15px; font-weight: 600; cursor: pointer; box-shadow: var(--shadow-lg);
+  display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 54px;
 }
 .fab:active { transform: scale(0.97); }
 .fab.accent { background: var(--accent); }
-.fab.danger { background: var(--no); }
 
-/* === MODAL === */
-.modal-bg {
-  position: fixed; inset: 0;
-  background: rgba(26,35,50,0.55);
-  z-index: 200;
-  display: none;
-  align-items: flex-end;
-  justify-content: center;
-  padding: 0;
+/* Modal */
+.modal-bg { position: fixed; inset: 0; background: rgba(26,35,50,0.55);
+  z-index: 200; display: none; align-items: flex-end; justify-content: center;
 }
 .modal-bg.open { display: flex; }
-@media (min-width: 600px) {
-  .modal-bg { align-items: center; padding: 20px; }
-}
-.modal {
-  background: var(--paper);
-  border-radius: 12px 12px 0 0;
-  width: 100%;
-  max-width: 500px;
-  max-height: 85vh;
-  overflow-y: auto;
-  padding: 20px;
+@media (min-width: 600px) { .modal-bg { align-items: center; padding: 20px; } }
+.modal { background: var(--paper); border-radius: 12px 12px 0 0; width: 100%;
+  max-width: 500px; max-height: 85vh; overflow-y: auto; padding: 20px;
   box-shadow: var(--shadow-lg);
 }
-@media (min-width: 600px) {
-  .modal { border-radius: 12px; }
-}
-.modal h3 {
-  font-family: 'Fraunces', serif;
-  margin: 0 0 16px;
-  font-size: 20px;
-  color: var(--primary);
+@media (min-width: 600px) { .modal { border-radius: 12px; } }
+.modal h3 { font-family: 'Fraunces', serif; margin: 0 0 16px;
+  font-size: 20px; color: var(--primary);
 }
 .modal-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
 
-.tur-list { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
-.tur-card {
-  background: var(--paper);
-  border: 1.5px solid var(--line);
-  border-left: 4px solid var(--accent);
-  border-radius: 8px;
-  padding: 14px 16px;
-  cursor: pointer;
-  text-align: left;
-  font-family: 'Lora', serif;
-  transition: all 0.15s;
-}
-.tur-card:active { background: var(--line-soft); transform: scale(0.99); }
-.tur-card-title {
-  font-family: 'Fraunces', serif;
-  font-weight: 600;
-  font-size: 17px;
-  color: var(--primary);
-  margin-bottom: 4px;
-}
-.tur-card-desc {
-  font-size: 13px;
-  color: var(--ink-soft);
-  line-height: 1.4;
-}
-
-/* === INSTALL PROMPT === */
-.install-banner {
-  background: var(--accent);
-  color: white;
-  padding: 12px 16px;
-  font-size: 13px;
-  display: none;
-  align-items: center;
-  gap: 10px;
+.install-banner { background: var(--accent); color: white; padding: 12px 16px;
+  font-size: 13px; display: none; align-items: center; gap: 10px;
 }
 .install-banner.show { display: flex; }
-.install-banner button {
-  margin-left: auto;
-  background: rgba(255,255,255,0.2);
-  border: 1px solid rgba(255,255,255,0.3);
-  color: white;
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-family: inherit;
-  cursor: pointer;
-  font-size: 13px;
+.install-banner button { margin-left: auto; background: rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.3); color: white; padding: 6px 12px;
+  border-radius: 4px; font-family: inherit; cursor: pointer; font-size: 13px;
 }
 
-/* === TOAST === */
-.toast {
-  position: fixed;
-  bottom: 90px; left: 50%;
-  transform: translateX(-50%);
-  background: var(--ink);
-  color: var(--paper);
-  padding: 12px 20px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-family: 'Lora', serif;
-  z-index: 300;
-  box-shadow: var(--shadow-lg);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.25s, transform 0.25s;
-  max-width: 90%;
-  text-align: center;
+.toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+  background: var(--ink); color: var(--paper); padding: 12px 20px; border-radius: 8px;
+  font-size: 14px; font-family: 'Lora', serif; z-index: 300; box-shadow: var(--shadow-lg);
+  opacity: 0; pointer-events: none; transition: opacity 0.25s, transform 0.25s;
+  max-width: 90%; text-align: center;
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
@@ -590,30 +355,40 @@ body {
   <button onclick="document.getElementById('installBanner').classList.remove('show')" style="background:transparent;border:none;color:white;font-size:18px;padding:0 4px;">×</button>
 </div>
 
-<!-- ===== HOME SCREEN ===== -->
+<!-- HOME -->
 <div class="screen active" id="screen-home">
   <div class="hero">
     <div class="hero-inner">
-      <div class="label">Kültür ve Turizm Bakanlığı</div>
+      <div class="label">Turizm Bakanlığı</div>
       <h2>Tesis Denetimi</h2>
       <p>Saha denetim asistanı</p>
     </div>
   </div>
-
   <div class="actions">
-    <button class="btn-primary accent" onclick="newDenetim()">
+    <button class="btn-primary accent" onclick="openTurSecimi()">
       <span style="font-size:22px;">＋</span> Yeni Denetim Başlat
     </button>
   </div>
-
   <div class="section-title">Denetimlerim</div>
   <div id="denetimList" class="denetim-list"></div>
 </div>
 
-<!-- ===== TESIS BILGI SCREEN ===== -->
-<div class="screen" id="screen-info">
+<!-- TUR SECIMI -->
+<div class="screen" id="screen-tur">
   <div class="appbar">
     <button class="back-btn" onclick="goHome()">← Geri</button>
+    <h1>Tesis Türü Seç</h1>
+  </div>
+  <div class="container">
+    <p style="color:var(--ink-soft); font-size:14px; margin: 0 0 12px;">Denetlemek istediğiniz tesis türünü seçin. Yönetmeliğin ilgili maddelerine sadık ayrı şablonlar kullanılır.</p>
+  </div>
+  <div id="turList" class="tur-list"></div>
+</div>
+
+<!-- TESIS BILGI -->
+<div class="screen" id="screen-info">
+  <div class="appbar">
+    <button class="back-btn" onclick="goHome()">← İptal</button>
     <h1>Tesis Bilgileri</h1>
   </div>
   <div class="container">
@@ -622,7 +397,7 @@ body {
   </div>
 </div>
 
-<!-- ===== DENETIM SCREEN ===== -->
+<!-- DENETIM -->
 <div class="screen" id="screen-denetim">
   <div class="appbar">
     <button class="back-btn" onclick="goHome()">← Kaydet & Çık</button>
@@ -630,8 +405,8 @@ body {
     <button class="icon-btn" onclick="editInfo()">✎</button>
   </div>
   <div class="summary-bar">
-    <div class="sum-pill sum-var"><span class="num" id="sumVar">0</span><span class="lbl">Var</span></div>
-    <div class="sum-pill sum-yok"><span class="num" id="sumYok">0</span><span class="lbl">Yok</span></div>
+    <div class="sum-pill sum-ok"><span class="num" id="sumOk">0</span><span class="lbl">Uygun</span></div>
+    <div class="sum-pill sum-no"><span class="num" id="sumNo">0</span><span class="lbl">Eksik</span></div>
     <div class="sum-pill sum-bos"><span class="num" id="sumBos">0</span><span class="lbl">Boş</span></div>
     <div class="sum-pill sum-pct"><span class="num" id="sumPct">—</span><span class="lbl">Uygunluk</span></div>
   </div>
@@ -643,11 +418,9 @@ body {
   </div>
 </div>
 
-<!-- ===== EXPORT MODAL ===== -->
 <div class="modal-bg" id="exportModal">
   <div class="modal">
     <h3>Rapor Oluştur</h3>
-    <p style="color:var(--ink-soft); font-size:14px; margin: 0 0 8px;">Hangi formatta?</p>
     <div class="modal-actions">
       <button class="btn-primary" onclick="exportPDF()">📄 PDF Rapor</button>
       <button class="btn-primary" style="background:var(--primary-soft);" onclick="exportWord()">📝 Word (.docx)</button>
@@ -657,7 +430,6 @@ body {
   </div>
 </div>
 
-<!-- ===== INFO MODAL (re-edit) ===== -->
 <div class="modal-bg" id="infoModal">
   <div class="modal">
     <h3>Tesis Bilgilerini Düzenle</h3>
@@ -669,32 +441,17 @@ body {
   </div>
 </div>
 
-<!-- ===== TUR SECIM MODAL ===== -->
-<div class="modal-bg" id="turModal">
-  <div class="modal">
-    <h3>Denetim Türü Seçin</h3>
-    <p style="color:var(--ink-soft); font-size:14px; margin: 0 0 12px;">Hangi tesis türü için denetim yapacaksınız?</p>
-    <div id="turList" class="tur-list"></div>
-    <div class="modal-actions">
-      <button class="btn-secondary" onclick="closeTurModal()">İptal</button>
-    </div>
-  </div>
-</div>
-
 <div class="toast" id="toast"></div>
 
 <script>
-// ==================== ŞABLON KATALOĞU ====================
-// Yeni tesis türleri eklemek için: SABLONLAR objesine yeni bir anahtar ekle.
-// Yapı: { id, baslik, kisaAd, aciklama, bilgiAlanlari[], mahaller[] }
 
-const SABLONLAR = {
-  
-  gastronomi: {
-    id: "gastronomi_v2",
-    baslik: "Gastronomi Tesisi",
-    kisaAd: "Gastronomi",
-    aciklama: "Yöresel/ulusal/uluslararası mutfak sunan, bakanlık desteği uygun bulunan yeme-içme tesisi",
+const SABLONLAR = [
+  {
+    id: "gastronomi",
+    ad: "Gastronomi Tesisi",
+    aciklama: "Yönetmelik Madde 26 — Yöresel/ulusal/uluslararası mutfak ile yiyecek-içecek servisi",
+    ikon: "🍽️",
+    hazir: true,
     bilgiAlanlari: [
       { key: "tesisAdi", label: "Tesisin Adı", required: true },
       { key: "adres", label: "Adresi" },
@@ -702,88 +459,360 @@ const SABLONLAR = {
       { key: "belgeNo", label: "Belge Tarih ve No" },
       { key: "belgeSahibi", label: "Belge Sahibi / Girişimci" },
       { key: "denetimNedeni", label: "Denetleme Nedeni" },
-      { key: "denetimTarihi", label: "Denetleme Tarihi", type: "date" },
-      { key: "kapasite", label: "Kapasite (kişi)" },
+      { key: "denetimTarihi", label: "Denetleme Tarihi", type: "date", required: true },
+      { key: "kapasite", label: "Müşteri Kapasitesi (kişi)", type: "number" },
       { key: "denetciAdi", label: "Denetçi Adı" }
     ],
-    mahaller: [
-      { ad: "Gastronomi Niteliği (Y:26-2/a — en az biri sağlanmalı)", maddeler: [
-        { t: "Yazılı/görsel/dijital basında marka bilinirliği veya ün sahibi olması", r: "Y:26-2/a-1, T:9-1" },
-        { t: "(1) numaralı niteliği sağlayan işletmeyle franchise/işletmecilik anlaşması", r: "Y:26-2/a-2, T:9-1" },
-        { t: "Başvuru sahibinin (1) veya (2) niteliğine sahip ayrı bir işletmesinin olması", r: "Y:26-2/a-3, T:9-1" },
-        { t: "Hakim ortağın gastronomi alanında diploma veya MYK mesleki yeterlilik belgesi", r: "Y:26-2/a-4" },
-        { t: "Tesisin yoğun turizm faaliyetleri olan bir bölgede yer alması", r: "Y:26-2/a-5" }
-      ]},
-      { ad: "Lokanta — Yemek Salonu (Y:26-2/b-1)", maddeler: [
-        { t: "En az 50 kişilik yemek salonu (60 m²)", r: "Y:26-2/b-1" },
-        { t: "Salon ile doğrudan bağlantılı mutfak", r: "Y:26-2/b-1" },
-        { t: "Yemek salonu taban döşemesi mevcut arazi seviyesi üzerinde", r: "Y:26-2/b-3" },
-        { t: "En az bir cepheden yeterli doğal aydınlatma", r: "Y:26-2/b-3" },
-        { t: "Yemek salonunda klima sistemi", r: "Y:26-2/b-5" },
-        { t: "Nitelikli tefriş, dekorasyon, donanım ve servis malzemeleri (mutfağa uygun, kaliteli)", r: "Y:26-2/b-6" }
-      ]},
-      { ad: "Lokanta — Mutfak (Y:26-2/b-1)", maddeler: [
-        { t: "Mutfak alanı (min. 25 m²; ≤200 m² salonda salonun %25'i, daha büyük salonlarda min. 50 m²)", r: "Y:26-2/b-1" },
-        { t: "Hazırlama, pişirme, bulaşık bölümleri ve mutfak fonksiyonları", r: "Y:26-2/b-1" },
-        { t: "Salon ve servis ayrı kattaysa servis merdiveni veya monşarj", r: "Y:26-2/b-1" },
-        { t: "İlave salon varsa servis mutfağı (aynı kattaki salonlar için tek mutfak yeterli)", r: "Y:26-2/b-1" },
-        { t: "Malzeme deposu", r: "Y:26-2/b-1" },
-        { t: "Soğuk saklama deposu veya soğuk dolap", r: "Y:26-2/b-1" },
-        { t: "Sunulan yiyecek türlerine uygun hazırlık yerleri", r: "Y:26-2/b-1" },
-        { t: "Izgara, kuzine ve verilen yemek türlerine uygun pişirme donanımı", r: "Y:26-2/b-1" },
-        { t: "Servis takımları için bulaşık makinesi", r: "Y:26-2/b-1" },
-        { t: "Soğuk-sıcak sunuma ilişkin donanım", r: "Y:26-2/b-1" },
-        { t: "Canlı yemek müziği imkânı (çevreyi/müşteriyi rahatsız etmeden)", r: "Y:26-2/b-1" }
-      ]},
-      { ad: "Müşteri Mahalleri (Y:26-2/b-4)", maddeler: [
-        { t: "Kadın ve erkek müşteriler için ayrı tuvalet", r: "Y:26-2/b-4" },
-        { t: "Kadın ve erkek müşteriler için ayrı lavabo", r: "Y:26-2/b-4" }
-      ]},
-      { ad: "Mutfak Şefi (Y:26-2/b-7)", maddeler: [
-        { t: "Mutfak şefinin gastronomi/aşçılık diploması veya MYK mesleki yeterlilik belgesi", r: "Y:26-2/b-7, T:9-1" },
-        { t: "Mutfak şefinin uluslararası ödülü VEYA basında tanınırlık yazısı (alternatif)", r: "Y:26-2/b-7, T:9-1" },
-        { t: "Mutfak şefinin nüfus cüzdanı/pasaport örneği ve istihdam belgesi", r: "T:9-1" },
-        { t: "Yabancı mutfak hizmeti varsa şefin o ülke mutfağında eğitimli olduğuna dair belge", r: "T:9-1" }
-      ]},
-      { ad: "Menü ve Sunum (Y:26-2/b-8..12)", maddeler: [
-        { t: "Menüde içerik, alerjen, vejetaryen/vegan, inanç hassasiyeti bilgileri (Türkçe + en az 1 yabancı dil)", r: "Y:26-2/b-8" },
-        { t: "Yöresel/geleneksel mutfak: en az 5 çeşit yöresel ürün, geleneksel pişirme ve menüde açıklama", r: "Y:26-2/b-9" },
-        { t: "Yabancı mutfak: o mutfağa özgü ürünlerle geleneksel pişirme, sunum, menüde açıklama", r: "Y:26-2/b-10" },
-        { t: "Dünya mutfağı: başlangıç, ara sıcak, ana yemek, tatlıdan en az 3'er adet kaliteli sunum", r: "Y:26-2/b-11" },
-        { t: "Sunulan yiyecek ürünlerinin işletme tarafından hazırlanması", r: "Y:26-2/b-12" }
-      ]},
-      { ad: "Asgari Nitelikler — Genel", maddeler: [
-        { t: "Çevre aydınlatması ve bahçe düzenlemesi", r: "Asgari-1" },
-        { t: "Dış cephe, duvar, kaplama malzemeleri kalitesi (yıpranma/çürüme yok)", r: "Asgari-2" },
-        { t: "Tüm mahallerde doğal veya mekanik havalandırma", r: "Asgari-3" },
-        { t: "Devamlı sıcak ve soğuk su", r: "Asgari-4" },
-        { t: "Jeneratör (kapasite 100 kişi üzerindeyse)", r: "Asgari-5" }
-      ]},
-      { ad: "Asgari Nitelikler — Personel ve Hijyen", maddeler: [
-        { t: "İlkyardım sertifikalı personel", r: "Asgari-6" },
-        { t: "İlkyardım malzemeleri", r: "Asgari-7" },
-        { t: "Personel temiz ve göreve uygun kıyafetli", r: "Asgari-8" },
-        { t: "Periyodik haşere ilaçlama (son fatura)", r: "Asgari-9" },
-        { t: "Yiyecek-içecekler uygun saklama yer ve koşullarında", r: "Asgari-10" },
-        { t: "Müşteri mahallerinde atık ayrıştırma kutuları (kâğıt, cam, plastik)", r: "Asgari-11" }
-      ]},
-      { ad: "Korunması Gerekli Kültür Varlığı (varsa)", maddeler: [
-        { t: "Metrik ölçü ve servis bağlantısında yapı niteliğine göre değerlendirme yapıldı", r: "Y:26-2 son fıkra" }
-      ]}
+    bolumler: [
+      // === BÖLÜM 1: GENEL ASGARİ NİTELİKLER (Madde 13-17, tüm tesislere ortak) ===
+      {
+        id: "genel",
+        ad: "Bölüm 1 — Genel Asgari Nitelikler",
+        altbaslik: "Tüm turizm tesislerine ortak (Madde 13-17)",
+        gruplar: [
+          {
+            id: "g_yerlesme", ad: "Yerleşme ve Yapı (M.13)", tip: "normal",
+            maddeler: [
+              { id: "g13_1", t: "Mahaller kullanım amacına uygun ölçülerde", r: "M.13/1", cevapTip: "uygun_uygundeğil" },
+              { id: "g13_2", t: "Tefriş ve donanım elemanları kaliteli ve nitelikli", r: "M.13/1", cevapTip: "uygun_uygundeğil" },
+              { id: "g13_3", t: "Dış cephe, iç duvar, zemin, tavan, çatı kaplama bakımlı ve nitelikli", r: "M.13/1", cevapTip: "uygun_uygundeğil" },
+              { id: "g13_4", t: "Bahçe varsa: özenle düzenlenmiş, aydınlatılmış, sürekli bakımı sağlanmış", r: "M.13/6", cevapTip: "uygun_uygundeğil" },
+              { id: "g13_5", t: "Çevre aydınlatması mevcut", r: "M.13/7", cevapTip: "var_yok" }
+            ]
+          },
+          {
+            id: "g_mahaller", ad: "Mahallerin Düzenlenmesi (M.14)", tip: "normal",
+            maddeler: [
+              { id: "g14_1", t: "Isıtma: merkezi sistem veya klima ile sağlanıyor", r: "M.14/3", cevapTip: "evet_hayir" },
+              { id: "g14_2", t: "Tüm mekanlarda yeterli doğal veya mekanik havalandırma", r: "M.14/3", cevapTip: "uygun_uygundeğil" },
+              { id: "g14_3", t: "Devamlı sıcak ve soğuk su mevcut", r: "M.14/3", cevapTip: "var_yok" },
+              { id: "g14_4", t: "Jeneratör (kapasite 100 kişi/yatak üzerindeyse zorunlu)", r: "M.14/4", cevapTip: "var_yok_na",
+                kosulNot: "Kapasite ≤ 100 ise 'Uygulanmaz' seçin" }
+            ]
+          },
+          {
+            id: "g_personel", ad: "Personel (M.15)", tip: "normal",
+            maddeler: [
+              { id: "g15_1", t: "Turizm alanında tecrübeli, eğitimli veya sertifikalı personel istihdam ediliyor", r: "M.15/1", cevapTip: "uygun_uygundeğil" },
+              { id: "g15_2", t: "Personel görev mahallerine uygun, özel ve temiz kıyafetli", r: "M.15/4", cevapTip: "uygun_uygundeğil" },
+              { id: "g15_3", t: "İlk yardım konusunda sertifikalı personel mevcut", r: "M.15/5", cevapTip: "var_yok" },
+              { id: "g15_4", t: "Personel için soyunma yeri, dolap, duş ve tuvalet (bay/bayan ayrı)", r: "M.15/2", cevapTip: "uygun_uygundeğil",
+                kosulNot: "20 oda altı konaklamalarda ve pansiyon/apart için farklı kurallar geçerli" }
+            ]
+          },
+          {
+            id: "g_tanitim", ad: "Tanıtım ve Bilgilendirme (M.16)", tip: "normal",
+            maddeler: [
+              { id: "g16_1", t: "Bakanlık plaketi tesis girişinde müşterinin görebileceği yerde", r: "M.16/1", cevapTip: "var_yok" },
+              { id: "g16_2", t: "Tanıtım belgeye uygun, yanıltıcı bilgi içermiyor", r: "M.16/2", cevapTip: "uygun_uygundeğil" },
+              { id: "g16_3", t: "Bakanlık tarafından onaylanan fiyat tarifesi uygulanıyor", r: "M.16/5", cevapTip: "evet_hayir" }
+            ]
+          },
+          {
+            id: "g_saglik", ad: "Sağlık, Temizlik, Güvenlik, Çevre (M.17)", tip: "normal",
+            maddeler: [
+              { id: "g17_1", t: "Hijyen ve sağlık kurallarına uyuluyor (yiyecek hazırlama, depolama, servis)", r: "M.17/1", cevapTip: "uygun_uygundeğil" },
+              { id: "g17_2", t: "İlkyardım malzemeleri bulundurulmuş", r: "M.17/2", cevapTip: "var_yok" },
+              { id: "g17_3", t: "Düzenli temizlik ve bakım sağlanıyor", r: "M.17/3", cevapTip: "uygun_uygundeğil" },
+              { id: "g17_4", t: "Periyodik haşere mücadelesi yapılıyor (son fatura/sözleşme görüldü)", r: "M.17/3", cevapTip: "var_yok" },
+              { id: "g17_5", t: "Atık ayrıştırma yapılıyor (kâğıt, cam, metal, plastik, organik vb.)", r: "M.17/4", cevapTip: "uygun_uygundeğil" },
+              { id: "g17_6", t: "Atık sular ilgili mevzuata uygun arıtılıyor", r: "M.17/4", cevapTip: "uygun_uygundeğil" },
+              { id: "g17_7", t: "Su, enerji, kimyasal madde tüketimi asgari düzeyde tutuluyor", r: "M.17/4", cevapTip: "uygun_uygundeğil" },
+              { id: "g17_8", t: "Personele çevre konusunda eğitim verilmiş", r: "M.17/4", cevapTip: "evet_hayir" },
+              { id: "g17_9", t: "Müşteri ve personel güvenliği için elektronik ve fiziki önlemler alınmış", r: "M.17/5", cevapTip: "uygun_uygundeğil" },
+              { id: "g17_10", t: "Tesisat, elektrik ve mekanik donanım standartlara uygun ve bakımlı", r: "M.17/5", cevapTip: "uygun_uygundeğil" },
+              { id: "g17_11", t: "Teras, balkon, merdiven, açık koridorlarda korkuluk düzenlemesi", r: "M.17/5", cevapTip: "uygun_uygundeğil" },
+              { id: "g17_12", t: "Cam ve kaygan yüzeylerde uyarı işaretleri", r: "M.17/5", cevapTip: "var_yok" }
+            ]
+          }
+        ]
+      },
+      
+      // === BÖLÜM 2: GASTRONOMİ TESİSİ ÖZEL NİTELİKLERİ (Madde 26) ===
+      {
+        id: "gastronomi_ozel",
+        ad: "Bölüm 2 — Gastronomi Tesisi Özel Nitelikleri",
+        altbaslik: "Yönetmelik Madde 26",
+        gruplar: [
+          // Madde 26/1 — tanım kontrolü
+          {
+            id: "g26_1", ad: "Tesis Niteliği (M.26/1)", tip: "normal",
+            maddeler: [
+              { id: "g26_1_1", t: "Yemek kültürünü turizm ürünü haline getirmiş", r: "M.26/1", cevapTip: "uygun_uygundeğil" },
+              { id: "g26_1_2", t: "Yöresel / geleneksel / ulusal / uluslararası mutfak özelliği taşıyor", r: "M.26/1", cevapTip: "uygun_uygundeğil" }
+            ]
+          },
+          
+          // Madde 26/2-a — ALTERNATİF GRUP (en az biri sağlanmalı)
+          {
+            id: "g26_2a",
+            ad: "Aşağıdaki niteliklerden EN AZ BİRİ sağlanmalıdır (M.26/2-a)",
+            tip: "alternatif",
+            kural: "en_az_bir",
+            maddeler: [
+              { id: "g26_2a_1", t: "İşletmenin yerel/bölgesel/ulusal/uluslararası basında marka bilinirliği veya ün sahibi olması (yazı/yayın örneği görüldü)", r: "M.26/2-a/1", cevapTip: "var_yok" },
+              { id: "g26_2a_2", t: "Bu niteliğe sahip bir işletme ile franchise/işletmecilik anlaşması sözleşmesi mevcut", r: "M.26/2-a/2", cevapTip: "var_yok" },
+              { id: "g26_2a_3", t: "Başvuru sahibinin başka bir işletmesi var ve o işletme (1) veya (2) niteliğine sahip (ortaklık belgesi görüldü)", r: "M.26/2-a/3", cevapTip: "var_yok" },
+              { id: "g26_2a_4", t: "Hâkim ortağın gastronomi alanında diploma veya MYK mesleki yeterlilik belgesi mevcut", r: "M.26/2-a/4", cevapTip: "var_yok" },
+              { id: "g26_2a_5", t: "Tesis yoğun turizm faaliyetlerinin bulunduğu bir bölgede yer alıyor", r: "M.26/2-a/5", cevapTip: "evet_hayir" }
+            ]
+          },
+          
+          // Madde 26/2-b/1 — Lokanta (yemek salonu, mutfak)
+          {
+            id: "g26_2b1_salon", ad: "Yemek Salonu (M.26/2-b/1, M.14/5-f)", tip: "normal",
+            maddeler: [
+              { id: "g26_b1s_kapasite", t: "Yemek salonu kapasitesi", r: "M.14/5-f", cevapTip: "sayi", unit: "kişi",
+                kural: { tip: "sayi_min", min: 50, mesaj: "Min. 50 kişilik olmalı" } },
+              { id: "g26_b1s_alan", t: "Yemek salonu alanı (mutfak hariç)", r: "M.14/5-f", cevapTip: "sayi", unit: "m²" },
+              { id: "g26_b1s_doga", t: "Yemek salonu taban döşemesi mevcut arazi seviyesi üzerinde", r: "M.26/2-b/2", cevapTip: "uygun_uygundeğil" },
+              { id: "g26_b1s_isik", t: "En az bir cepheden yeterli doğal aydınlatma", r: "M.26/2-b/2", cevapTip: "uygun_uygundeğil" },
+              { id: "g26_b1s_klima", t: "Yemek salonunda klima sistemi", r: "M.26/2-b/4", cevapTip: "var_yok" },
+              { id: "g26_b1s_dekor", t: "Nitelikli tefriş, dekorasyon, donanım ve servis malzemeleri (yabancı mutfaksa o ülke kültürünü yansıtan)", r: "M.26/2-b/5", cevapTip: "uygun_uygundeğil" },
+              { id: "g26_b1s_baglanti", t: "Salon ile doğrudan bağlantılı mutfak", r: "M.14/5-f", cevapTip: "var_yok" },
+              { id: "g26_b1s_servis_merdiven", t: "Salon ve servis ayrı katlardaysa: servis merdiveni veya monşarj", r: "M.14/5-f", cevapTip: "var_yok_na",
+                kosulNot: "Aynı kattaysa 'Uygulanmaz' seçin" },
+              { id: "g26_b1s_ilave", t: "Mutfakla doğrudan bağlantısı olmayan ilave salon varsa servis mutfağı", r: "M.14/5-f", cevapTip: "var_yok_na" }
+            ]
+          },
+          {
+            id: "g26_2b1_mutfak", ad: "Mutfak (M.26/2-b/1, M.14/5-f)", tip: "normal",
+            maddeler: [
+              { id: "g26_b1m_alan", t: "Mutfak alanı", r: "M.26/2-b/1, M.14/5-f", cevapTip: "sayi", unit: "m²",
+                kural: { tip: "sayi_min", min: 25, mesaj: "Gastronomi tesisinde en az 25 m². Salon ≤200 m² ise salonun %25'i, daha büyük salonlarda min. 50 m² olmalı" } },
+              { id: "g26_b1m_alanlar", t: "Hazırlama, pişirme, bulaşık bölümleri ve mutfak fonksiyonları mevcut", r: "M.14/5-f", cevapTip: "uygun_uygundeğil" },
+              { id: "g26_b1m_depo", t: "Malzeme deposu", r: "M.14/5-f", cevapTip: "var_yok" },
+              { id: "g26_b1m_soguk", t: "Soğuk saklama deposu veya soğuk dolap", r: "M.14/5-f", cevapTip: "var_yok" },
+              { id: "g26_b1m_haz", t: "Sunulan yiyecek türlerine uygun hazırlık yerleri", r: "M.14/5-f", cevapTip: "uygun_uygundeğil" },
+              { id: "g26_b1m_pis", t: "Izgara, kuzine ve yemek türlerine uygun pişirme donanımı", r: "M.14/5-f", cevapTip: "uygun_uygundeğil" },
+              { id: "g26_b1m_bulasik", t: "Servis takımları için bulaşık makinesi", r: "M.14/5-f", cevapTip: "var_yok" },
+              { id: "g26_b1m_sunum", t: "Soğuk-sıcak sunuma ilişkin donanım", r: "M.14/5-f", cevapTip: "var_yok" }
+            ]
+          },
+          
+          // Madde 26/2-b/3 — Müşteri tuvaletleri
+          {
+            id: "g26_2b3", ad: "Müşteri Mahalleri (M.26/2-b/3)", tip: "normal",
+            maddeler: [
+              { id: "g26_b3_wc_e", t: "Erkek müşteriler için ayrı tuvalet", r: "M.26/2-b/3", cevapTip: "var_yok" },
+              { id: "g26_b3_wc_k", t: "Kadın müşteriler için ayrı tuvalet", r: "M.26/2-b/3", cevapTip: "var_yok" },
+              { id: "g26_b3_lav_e", t: "Erkek müşteriler için ayrı lavabo", r: "M.26/2-b/3", cevapTip: "var_yok" },
+              { id: "g26_b3_lav_k", t: "Kadın müşteriler için ayrı lavabo", r: "M.26/2-b/3", cevapTip: "var_yok" }
+            ]
+          },
+          
+          // Madde 26/2-b/6 — Mutfak şefi (alternatifli)
+          {
+            id: "g26_2b6",
+            ad: "Mutfak Şefi Nitelikleri (M.26/2-b/6) — EN AZ BİRİ sağlanmalı",
+            tip: "alternatif",
+            kural: "en_az_bir",
+            maddeler: [
+              { id: "g26_b6_diploma", t: "Mutfak şefinin gastronomi alanında ulusal/uluslararası örgün eğitim diploması", r: "M.26/2-b/6", cevapTip: "var_yok" },
+              { id: "g26_b6_myk", t: "Mutfak şefinin MYK tarafından düzenlenen mesleki yeterlilik belgesi", r: "M.26/2-b/6", cevapTip: "var_yok" },
+              { id: "g26_b6_odul", t: "Mutfak şefinin gastronomi alanında ödülü", r: "M.26/2-b/6", cevapTip: "var_yok" },
+              { id: "g26_b6_taninir", t: "Mutfak şefinin yerel/ulusal/uluslararası tanınırlığı (yazı/yayın görüldü)", r: "M.26/2-b/6", cevapTip: "var_yok" }
+            ]
+          },
+          {
+            id: "g26_2b6_yabanci", ad: "Yabancı Mutfak (varsa)", tip: "normal",
+            maddeler: [
+              { id: "g26_b6_yab", t: "Başka ulusa ait mutfak hizmeti veriliyorsa: o alanda eğitimli şef istihdamı", r: "M.26/2-b/6", cevapTip: "var_yok_na",
+                kosulNot: "Yabancı mutfak yoksa 'Uygulanmaz'" }
+            ]
+          },
+          
+          // Madde 26/2-b/7 — Personel oranı
+          {
+            id: "g26_2b7", ad: "Personel Eğitimi (M.26/2-b/7)", tip: "normal",
+            maddeler: [
+              { id: "g26_b7_oran", t: "Konusunda deneyimli/eğitimli personel oranı", r: "M.26/2-b/7", cevapTip: "sayi", unit: "%",
+                kural: { tip: "sayi_min", min: 20, mesaj: "Çalışan personelin en az %20'si konusunda deneyimli veya eğitim almış olmalı" } }
+            ]
+          },
+          
+          // Madde 26/2-b/8 — Menü
+          {
+            id: "g26_2b8", ad: "Menü (M.26/2-b/8)", tip: "normal",
+            maddeler: [
+              { id: "g26_b8_icerik", t: "Menüde ürün içerikleri belirtilmiş", r: "M.26/2-b/8", cevapTip: "var_yok" },
+              { id: "g26_b8_alerjen", t: "Menüde alerjen bilgileri belirtilmiş", r: "M.26/2-b/8", cevapTip: "var_yok" },
+              { id: "g26_b8_vejetaryen", t: "Menüde vejetaryen/vegan tüketim uygunluğu belirtilmiş", r: "M.26/2-b/8", cevapTip: "var_yok" },
+              { id: "g26_b8_inanc", t: "Menüde inanç hassasiyetine yönelik içerik bilgisi", r: "M.26/2-b/8", cevapTip: "var_yok" },
+              { id: "g26_b8_dil", t: "Menü Türkçe + en az 1 yabancı dilde", r: "M.26/2-b/8", cevapTip: "uygun_uygundeğil" }
+            ]
+          },
+          
+          // Madde 26/2-b/9, 10, 11 — mutfak türüne göre
+          {
+            id: "g26_2b9", ad: "Yöresel/Geleneksel Mutfak (M.26/2-b/9) — Eğer bu mutfak veriliyorsa", tip: "normal",
+            maddeler: [
+              { id: "g26_b9_yor", t: "En az 5 çeşit yöresel ürün kullanılıyor", r: "M.26/2-b/9", cevapTip: "var_yok_na" },
+              { id: "g26_b9_pis", t: "Geleneksel usul (veya modern yorumla) pişirme uygulanıyor", r: "M.26/2-b/9", cevapTip: "uygun_uygundeğil" },
+              { id: "g26_b9_aciklama", t: "Yöresel ürünler menüde anlatılarak açıklanmış", r: "M.26/2-b/9", cevapTip: "var_yok_na" }
+            ]
+          },
+          {
+            id: "g26_2b10", ad: "Yabancı Mutfak (M.26/2-b/10) — Eğer veriliyorsa", tip: "normal",
+            maddeler: [
+              { id: "g26_b10_ozgun", t: "Sunulan mutfağa özgü ürünler kullanılıyor", r: "M.26/2-b/10", cevapTip: "var_yok_na" },
+              { id: "g26_b10_pis", t: "Geleneksel usulle (veya modern yorumla) pişirme", r: "M.26/2-b/10", cevapTip: "uygun_uygundeğil" },
+              { id: "g26_b10_aciklama", t: "Menüde mutfağın anlatımı ve açıklaması", r: "M.26/2-b/10", cevapTip: "var_yok_na" }
+            ]
+          },
+          {
+            id: "g26_2b11", ad: "Dünya Mutfağı (M.26/2-b/11) — Eğer veriliyorsa", tip: "normal",
+            maddeler: [
+              { id: "g26_b11_baslangic", t: "Başlangıç çeşidi adedi", r: "M.26/2-b/11", cevapTip: "sayi", unit: "adet",
+                kural: { tip: "sayi_min", min: 3, mesaj: "En az 3 çeşit olmalı" } },
+              { id: "g26_b11_arasi", t: "Ara sıcak çeşidi adedi", r: "M.26/2-b/11", cevapTip: "sayi", unit: "adet",
+                kural: { tip: "sayi_min", min: 3, mesaj: "En az 3 çeşit olmalı" } },
+              { id: "g26_b11_ana", t: "Ana yemek çeşidi adedi", r: "M.26/2-b/11", cevapTip: "sayi", unit: "adet",
+                kural: { tip: "sayi_min", min: 3, mesaj: "En az 3 çeşit olmalı" } },
+              { id: "g26_b11_tatli", t: "Tatlı çeşidi adedi", r: "M.26/2-b/11", cevapTip: "sayi", unit: "adet",
+                kural: { tip: "sayi_min", min: 3, mesaj: "En az 3 çeşit olmalı" } },
+              { id: "g26_b11_kalite", t: "Kaliteli malzemelerle, uygun servis malzemesiyle sunum", r: "M.26/2-b/11", cevapTip: "uygun_uygundeğil" },
+              { id: "g26_b11_aciklama", t: "Menüde anlatım ve açıklama", r: "M.26/2-b/11", cevapTip: "var_yok" }
+            ]
+          },
+          
+          // Madde 26/2-b/12 — Üretim
+          {
+            id: "g26_2b12", ad: "Üretim (M.26/2-b/12)", tip: "normal",
+            maddeler: [
+              { id: "g26_b12", t: "Sunulan yiyecek ürünleri işletme tarafından hazırlanıyor (seri üretim/hazır yemek değil)", r: "M.26/2-b/12, M.26/1", cevapTip: "evet_hayir" }
+            ]
+          },
+          
+          // Madde 26/4 — Korunması gerekli kültür varlığı (varsa)
+          {
+            id: "g26_4", ad: "Kültür Varlığında Yer Alanlar (M.26/4) — Varsa", tip: "normal",
+            maddeler: [
+              { id: "g26_4", t: "Korunması gerekli taşınmaz kültür varlığında ise: metrik ölçüler ve mutfak-salon servis bağlantısı yapı niteliğine göre değerlendirilmiş", r: "M.26/4", cevapTip: "uygun_uygundeğil_na" }
+            ]
+          }
+        ]
+      }
     ]
-  }
+  },
   
-  // İleride eklenecek diğer şablonlar buraya:
-  // lokanta_1: { id: "...", baslik: "1. Sınıf Lokanta", ... },
-  // otel: { ... },
-  // pansiyon: { ... }
+  // === DİĞER TESİS TÜRLERİ — İSKELET (henüz hazır değil) ===
+  { id: "otel_5", ad: "5 Yıldızlı Otel", aciklama: "Madde 19/6", ikon: "⭐", hazir: false, bilgiAlanlari: [], bolumler: [] },
+  { id: "otel_4", ad: "4 Yıldızlı Otel", aciklama: "Madde 19/5", ikon: "⭐", hazir: false, bilgiAlanlari: [], bolumler: [] },
+  { id: "otel_3", ad: "3 Yıldızlı Otel", aciklama: "Madde 19/4", ikon: "⭐", hazir: false, bilgiAlanlari: [], bolumler: [] },
+  { id: "otel_2", ad: "2 Yıldızlı Otel", aciklama: "Madde 19/3", ikon: "⭐", hazir: false, bilgiAlanlari: [], bolumler: [] },
+  { id: "otel_1", ad: "1 Yıldızlı Otel", aciklama: "Madde 19/2", ikon: "⭐", hazir: false, bilgiAlanlari: [], bolumler: [] },
+  { id: "tatil_koyu", ad: "Tatil Köyü", aciklama: "Madde 20", ikon: "🏖️", hazir: false, bilgiAlanlari: [], bolumler: [] },
+  { id: "butik_otel", ad: "Butik Otel", aciklama: "Madde 21", ikon: "🏛️", hazir: false, bilgiAlanlari: [], bolumler: [] },
+  { id: "ozel_konaklama", ad: "Özel Konaklama Tesisi", aciklama: "Madde 22", ikon: "🏰", hazir: false, bilgiAlanlari: [], bolumler: [] },
+  { id: "motel", ad: "Motel", aciklama: "Madde 23", ikon: "🛏️", hazir: false, bilgiAlanlari: [], bolumler: [] },
+  { id: "pansiyon", ad: "Pansiyon", aciklama: "Madde 24", ikon: "🏠", hazir: false, bilgiAlanlari: [], bolumler: [] },
+  { id: "apart_otel", ad: "Apart Otel", aciklama: "Madde 25", ikon: "🏢", hazir: false, bilgiAlanlari: [], bolumler: [] },
+  { id: "termal", ad: "Termal Tesis", aciklama: "Madde 27", ikon: "♨️", hazir: false, bilgiAlanlari: [], bolumler: [] },
+  { id: "saglikli_yasam", ad: "Sağlıklı Yaşam Tesisi", aciklama: "Madde 28", ikon: "🧖", hazir: false, bilgiAlanlari: [], bolumler: [] },
+  { id: "spor", ad: "Spor Tesisi", aciklama: "Madde 29", ikon: "⚽", hazir: false, bilgiAlanlari: [], bolumler: [] },
+  { id: "golf", ad: "Golf Tesisi", aciklama: "Madde 30", ikon: "⛳", hazir: false, bilgiAlanlari: [], bolumler: [] },
+  { id: "kis_sporu", ad: "Kış Sporları Mekanik Tesisi", aciklama: "Madde 31", ikon: "🎿", hazir: false, bilgiAlanlari: [], bolumler: [] },
+  { id: "kongre", ad: "Kongre ve Sergi Merkezi", aciklama: "Madde 32", ikon: "🎤", hazir: false, bilgiAlanlari: [], bolumler: [] },
+  { id: "eglence", ad: "Eğlence Merkezi", aciklama: "Madde 33", ikon: "🎢", hazir: false, bilgiAlanlari: [], bolumler: [] },
+  { id: "gunubirlik", ad: "Günübirlik Tesis", aciklama: "Madde 34", ikon: "☀️", hazir: false, bilgiAlanlari: [], bolumler: [] },
+  { id: "kirsal", ad: "Kırsal Turizm Tesisi", aciklama: "Madde 35", ikon: "🌾", hazir: false, bilgiAlanlari: [], bolumler: [] },
+  { id: "mobil_ev", ad: "Mobil Ev Tesisi", aciklama: "Madde 35/A", ikon: "🚐", hazir: false, bilgiAlanlari: [], bolumler: [] },
+  { id: "kamping", ad: "Kamping / Mesire Yeri", aciklama: "Madde 36", ikon: "⛺", hazir: false, bilgiAlanlari: [], bolumler: [] },
+  { id: "mola", ad: "Mola Noktası", aciklama: "Madde 40", ikon: "🛣️", hazir: false, bilgiAlanlari: [], bolumler: [] },
+  { id: "ozel_tesis", ad: "Özel Tesis", aciklama: "Madde 42", ikon: "✨", hazir: false, bilgiAlanlari: [], bolumler: [] }
+];
+
+
+// ==================== CEVAP TIPI TANIMLARI ====================
+// Her cevap tipinin butonları ve "olumlu/olumsuz/uygulanmaz" değer haritası
+const CEVAP_TIPLERI = {
+  var_yok: {
+    butonlar: [
+      { val: "Var", lbl: "VAR", cls: "pos" },
+      { val: "Yok", lbl: "YOK", cls: "neg" }
+    ],
+    olumlu: ["Var"], olumsuz: ["Yok"], na: []
+  },
+  var_yok_na: {
+    butonlar: [
+      { val: "Var", lbl: "VAR", cls: "pos" },
+      { val: "Yok", lbl: "YOK", cls: "neg" },
+      { val: "NA", lbl: "UYGULANMAZ", cls: "na" }
+    ],
+    olumlu: ["Var"], olumsuz: ["Yok"], na: ["NA"]
+  },
+  uygun_uygundeğil: {
+    butonlar: [
+      { val: "Uygun", lbl: "UYGUN", cls: "pos" },
+      { val: "UygunDeğil", lbl: "UYGUN DEĞİL", cls: "neg" }
+    ],
+    olumlu: ["Uygun"], olumsuz: ["UygunDeğil"], na: []
+  },
+  uygun_uygundeğil_na: {
+    butonlar: [
+      { val: "Uygun", lbl: "UYGUN", cls: "pos" },
+      { val: "UygunDeğil", lbl: "UYGUN DEĞİL", cls: "neg" },
+      { val: "NA", lbl: "UYGULANMAZ", cls: "na" }
+    ],
+    olumlu: ["Uygun"], olumsuz: ["UygunDeğil"], na: ["NA"]
+  },
+  evet_hayir: {
+    butonlar: [
+      { val: "Evet", lbl: "EVET", cls: "pos" },
+      { val: "Hayır", lbl: "HAYIR", cls: "neg" }
+    ],
+    olumlu: ["Evet"], olumsuz: ["Hayır"], na: []
+  },
+  sayi: {
+    butonlar: null, // input
+    olumlu: [], olumsuz: [], na: [] // kurala göre değerlendirilir
+  },
+  tarih: {
+    butonlar: null,
+    olumlu: [], olumsuz: [], na: []
+  },
+  metin: {
+    butonlar: null,
+    olumlu: [], olumsuz: [], na: []
+  }
 };
 
-// Aktif şablonu tutan değişken (denetim açıldığında set edilir)
-let SABLON = SABLONLAR.gastronomi;
+// Bir cevabın olumlu/olumsuz/boş/na olduğunu döndür
+function evalCevap(madde, cevap) {
+  if (!cevap || (cevap.deger === undefined || cevap.deger === null || cevap.deger === "")) {
+    return "bos";
+  }
+  const tip = CEVAP_TIPLERI[madde.cevapTip];
+  if (!tip) return "bos";
+  
+  // Sayısal kural kontrolü
+  if (madde.cevapTip === "sayi") {
+    if (madde.kural) {
+      const v = parseFloat(cevap.deger);
+      if (isNaN(v)) return "bos";
+      if (madde.kural.tip === "sayi_min" && v < madde.kural.min) return "olumsuz";
+      if (madde.kural.tip === "sayi_max" && v > madde.kural.max) return "olumsuz";
+      return "olumlu";
+    }
+    // Kural yoksa sadece girilmiş = bilgi (olumlu sayılır)
+    return "olumlu";
+  }
+  
+  // Tarih ve metin: sadece dolu/boş
+  if (madde.cevapTip === "tarih" || madde.cevapTip === "metin") {
+    return cevap.deger ? "olumlu" : "bos";
+  }
+  
+  // Buton-tabanlı tipler
+  if (tip.olumlu.includes(cevap.deger)) return "olumlu";
+  if (tip.olumsuz.includes(cevap.deger)) return "olumsuz";
+  if (tip.na.includes(cevap.deger)) return "na";
+  return "bos";
+}
 
-// ==================== STORAGE (IndexedDB) ====================
-const DB_NAME = "DenetimDB";
+// ==================== STORAGE ====================
+const DB_NAME = "DenetimDB_v2";
 const DB_VER = 1;
 let db;
 
@@ -828,24 +857,16 @@ function getDenetim(id) {
   });
 }
 
-function deleteDenetim(id) {
-  return new Promise((res, rej) => {
-    const tx = db.transaction("denetimler", "readwrite");
-    tx.objectStore("denetimler").delete(id);
-    tx.oncomplete = () => res();
-  });
-}
-
 // ==================== STATE ====================
 let currentDenetim = null;
+let currentSablon = null;
 
-// ==================== UI HELPERS ====================
+// ==================== HELPERS ====================
 function showScreen(id) {
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
   window.scrollTo(0, 0);
 }
-
 function toast(msg) {
   const t = document.getElementById("toast");
   t.textContent = msg;
@@ -853,16 +874,18 @@ function toast(msg) {
   clearTimeout(t._h);
   t._h = setTimeout(() => t.classList.remove("show"), 2400);
 }
-
-function uid() {
-  return "d_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 6);
+function uid() { return "d_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 6); }
+function escapeHtml(s) {
+  if (s == null) return "";
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
 }
-
 function fmtDate(iso) {
   if (!iso) return "—";
   const d = new Date(iso);
+  if (isNaN(d.getTime())) return iso;
   return d.toLocaleDateString("tr-TR", { day: "2-digit", month: "2-digit", year: "numeric" });
 }
+function getSablon(id) { return SABLONLAR.find(s => s.id === id); }
 
 // ==================== HOME ====================
 async function refreshHome() {
@@ -880,32 +903,29 @@ async function refreshHome() {
   }
   
   list.innerHTML = all.map(d => {
-    const stats = computeStatsFor(d);
+    const sablon = getSablon(d.sablonId);
+    const stats = computeStats(d);
     const titleText = d.bilgi.tesisAdi || "İsimsiz Tesis";
     const dateText = fmtDate(d.bilgi.denetimTarihi || d.olusturma);
-    const turAdi = (SABLONLAR[d.sablonKey] && SABLONLAR[d.sablonKey].kisaAd) || "—";
+    const turText = sablon ? sablon.ad : d.sablonId;
     const isComplete = stats.bos === 0;
     const statClass = stats.toplamCevap === 0 ? "stat-neutral" : (stats.pct >= 70 ? "stat-good" : "stat-bad");
     const statText = stats.toplamCevap === 0 ? "—" : "%" + stats.pct;
     return `<div class="denetim-card ${isComplete ? 'completed' : ''}" onclick="openDenetim('${d.id}')">
       <div class="denetim-card-body">
         <div class="denetim-card-title">${escapeHtml(titleText)}</div>
-        <div class="denetim-card-meta">${escapeHtml(turAdi)} · ${dateText} · ${stats.yok} eksik</div>
+        <div class="denetim-card-meta">${escapeHtml(turText)} · ${dateText} · ${stats.olumsuz} eksik</div>
       </div>
       <div class="denetim-card-stat ${statClass}">${statText}</div>
     </div>`;
   }).join("");
 }
 
-function escapeHtml(s) {
-  if (s == null) return "";
-  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
-}
-
 function goHome() {
   if (currentDenetim) {
     saveDenetim(currentDenetim).then(() => {
       currentDenetim = null;
+      currentSablon = null;
       refreshHome();
       showScreen("screen-home");
     });
@@ -915,56 +935,50 @@ function goHome() {
   }
 }
 
-// ==================== NEW DENETIM ====================
-function newDenetim() {
-  // Önce tür seçim modalını göster
-  showTurModal();
-}
-
-function showTurModal() {
+// ==================== TUR SECIMI ====================
+function openTurSecimi() {
   const list = document.getElementById("turList");
-  list.innerHTML = Object.keys(SABLONLAR).map(key => {
-    const s = SABLONLAR[key];
-    return `<button class="tur-card" onclick="selectTurAndStart('${key}')">
-      <div class="tur-card-title">${escapeHtml(s.baslik)}</div>
-      <div class="tur-card-desc">${escapeHtml(s.aciklama || '')}</div>
-    </button>`;
+  list.innerHTML = SABLONLAR.map(s => {
+    const cls = s.hazir ? "" : "disabled";
+    const meta = s.hazir ? `<div class="tur-card-meta">${escapeHtml(s.aciklama)}</div>`
+                        : `<div class="tur-card-meta soon">Yakında — ${escapeHtml(s.aciklama)}</div>`;
+    const onclick = s.hazir ? `onclick="newDenetim('${s.id}')"` : "";
+    return `<div class="tur-card ${cls}" ${onclick}>
+      <div class="tur-card-icon">${s.ikon}</div>
+      <div class="tur-card-body">
+        <div class="tur-card-title">${escapeHtml(s.ad)}</div>
+        ${meta}
+      </div>
+      ${s.hazir ? '<div style="color:var(--muted);">›</div>' : ''}
+    </div>`;
   }).join("");
-  document.getElementById("turModal").classList.add("open");
+  showScreen("screen-tur");
 }
 
-function closeTurModal() {
-  document.getElementById("turModal").classList.remove("open");
-}
-
-function selectTurAndStart(sablonKey) {
-  if (!SABLONLAR[sablonKey]) { toast("Şablon bulunamadı"); return; }
-  SABLON = SABLONLAR[sablonKey];
-  closeTurModal();
-  
+// ==================== NEW DENETIM ====================
+function newDenetim(sablonId) {
+  const sablon = getSablon(sablonId);
+  if (!sablon || !sablon.hazir) { toast("Bu tesis türü henüz hazır değil"); return; }
+  currentSablon = sablon;
   currentDenetim = {
     id: uid(),
-    sablonKey: sablonKey,
-    sablonId: SABLON.id,
-    bilgi: {},
-    cevaplar: {},
+    sablonId: sablon.id,
+    bilgi: { denetimTarihi: new Date().toISOString().slice(0,10) },
+    cevaplar: {},  // { maddeId: { deger, aciklama } }
     olusturma: Date.now(),
     guncelleme: Date.now()
   };
-  currentDenetim.bilgi.denetimTarihi = new Date().toISOString().slice(0,10);
   renderInfoForm("infoForm", currentDenetim.bilgi);
-  // Üst başlığı güncelle
-  document.querySelector("#screen-info .appbar h1").textContent = SABLON.baslik + " — Tesis Bilgileri";
   showScreen("screen-info");
 }
 
 function renderInfoForm(containerId, bilgi) {
   const c = document.getElementById(containerId);
-  c.innerHTML = SABLON.bilgiAlanlari.map(f => {
+  c.innerHTML = currentSablon.bilgiAlanlari.map(f => {
     const val = bilgi[f.key] || "";
-    const type = f.type === "date" ? "date" : "text";
+    const type = f.type === "date" ? "date" : (f.type === "number" ? "number" : "text");
     return `<div class="form-row">
-      <label>${f.label}${f.required ? ' *' : ''}</label>
+      <label>${escapeHtml(f.label)}${f.required ? ' *' : ''}</label>
       <input type="${type}" data-key="${f.key}" value="${escapeHtml(val)}" placeholder="${escapeHtml(f.label)}">
     </div>`;
   }).join("");
@@ -979,10 +993,7 @@ function readInfoForm(containerId) {
 
 async function saveInfoAndStart() {
   const bilgi = readInfoForm("infoForm");
-  if (!bilgi.tesisAdi) {
-    toast("Tesis adı zorunludur");
-    return;
-  }
+  if (!bilgi.tesisAdi) { toast("Tesis adı zorunludur"); return; }
   currentDenetim.bilgi = bilgi;
   currentDenetim.guncelleme = Date.now();
   await saveDenetim(currentDenetim);
@@ -990,18 +1001,13 @@ async function saveInfoAndStart() {
   showScreen("screen-denetim");
 }
 
-// ==================== OPEN EXISTING ====================
 async function openDenetim(id) {
-  currentDenetim = await getDenetim(id);
-  if (!currentDenetim) { toast("Denetim bulunamadı"); return; }
-  // Şablonu doğru yükle (eski kayıtlar için fallback)
-  const key = currentDenetim.sablonKey;
-  if (key && SABLONLAR[key]) {
-    SABLON = SABLONLAR[key];
-  } else {
-    // Eski kayıt veya şablon adı bilinmiyor - varsayılan ilk şablon
-    SABLON = SABLONLAR[Object.keys(SABLONLAR)[0]];
-  }
+  const d = await getDenetim(id);
+  if (!d) { toast("Denetim bulunamadı"); return; }
+  const s = getSablon(d.sablonId);
+  if (!s || !s.hazir) { toast("Bu denetimin şablonu mevcut değil"); return; }
+  currentDenetim = d;
+  currentSablon = s;
   renderDenetim();
   showScreen("screen-denetim");
 }
@@ -1012,129 +1018,299 @@ function renderDenetim() {
   const c = document.getElementById("maddelerContainer");
   let html = "";
   let counter = 0;
-  SABLON.mahaller.forEach((mahal, mi) => {
-    html += `<div class="mahal-header"><span>${escapeHtml(mahal.ad)}</span></div>`;
-    mahal.maddeler.forEach((m, midx) => {
-      counter++;
-      const key = `${mi}_${midx}`;
-      const cevap = currentDenetim.cevaplar[key] || {};
-      const durum = cevap.durum || "";
-      const aciklama = cevap.aciklama || "";
-      const hasAck = aciklama.length > 0;
-      const cls = durum === "Var" ? "has-var" : durum === "Yok" ? "has-yok" : durum === "NA" ? "has-na" : "";
-      html += `<div class="madde ${cls}" id="madde-${key}">
-        <div class="madde-head">
-          <div class="madde-no">${counter}</div>
-          <div class="madde-text">
-            ${escapeHtml(m.t)}
-            <div class="madde-ref">${escapeHtml(m.r)}</div>
-          </div>
-        </div>
-        <div class="madde-controls">
-          <button class="btn-status var ${durum==='Var'?'active':''}" onclick="setDurum('${key}','Var')">VAR</button>
-          <button class="btn-status yok ${durum==='Yok'?'active':''}" onclick="setDurum('${key}','Yok')">YOK</button>
-          <button class="btn-status na ${durum==='NA'?'active':''}" onclick="setDurum('${key}','NA')">YOK SAY</button>
-        </div>
-        <button class="aciklama-toggle ${hasAck?'has-aciklama':''}" onclick="toggleAciklama('${key}')">
-          ${hasAck ? '✎ Açıklama var (düzenle)' : '+ Açıklama Ekle'}
-        </button>
-        <div class="aciklama-area ${hasAck?'open':''}" id="ack-${key}">
-          <textarea data-key="${key}" id="txt-${key}" placeholder="Tespit, not, fotoğraf no vb." onchange="setAciklama('${key}', this.value)">${escapeHtml(aciklama)}</textarea>
-          <div class="ack-tools">
-            <button class="mic-btn" id="mic-${key}" onclick="toggleMic('${key}')" title="Sesli not (Türkçe)">
-              <span class="mic-icon">🎤</span>
-              <span class="mic-label">Sesli Not</span>
-            </button>
-            <span class="mic-hint" id="hint-${key}"></span>
-          </div>
-        </div>
-      </div>`;
+  
+  currentSablon.bolumler.forEach(bolum => {
+    html += `<div class="bolum-header">
+      <h2 class="bolum-title">${escapeHtml(bolum.ad)}</h2>
+      ${bolum.altbaslik ? `<div class="bolum-subtitle">${escapeHtml(bolum.altbaslik)}</div>` : ''}
+    </div>`;
+    
+    bolum.gruplar.forEach(grup => {
+      if (grup.tip === "alternatif") {
+        // Alternatif grup başlığı (sarı kutu içinde)
+        html += `<div class="alt-group" id="grp-${grup.id}">
+          <div class="alt-group-header">
+            <div class="alt-group-icon">⚖️</div>
+            <div class="alt-group-title">${escapeHtml(grup.ad)}</div>
+            <div class="alt-group-status" id="grpst-${grup.id}">Bekleniyor</div>
+          </div>`;
+        grup.maddeler.forEach(m => {
+          counter++;
+          html += renderMadde(m, counter);
+        });
+        html += `</div>`;
+      } else {
+        // Normal grup
+        if (grup.ad) {
+          html += `<div class="mahal-header"><span>${escapeHtml(grup.ad)}</span></div>`;
+        }
+        grup.maddeler.forEach(m => {
+          counter++;
+          html += renderMadde(m, counter);
+        });
+      }
     });
   });
+  
   c.innerHTML = html;
+  updateAllAltGroups();
   updateSummary();
 }
 
-function setDurum(key, durum) {
-  if (!currentDenetim.cevaplar[key]) currentDenetim.cevaplar[key] = {};
-  // Aynı butona basarsa temizle
-  if (currentDenetim.cevaplar[key].durum === durum) {
-    currentDenetim.cevaplar[key].durum = "";
+function renderMadde(madde, no) {
+  const cevap = currentDenetim.cevaplar[madde.id] || {};
+  const evalRes = evalCevap(madde, cevap);
+  const aciklama = cevap.aciklama || "";
+  const hasAck = aciklama.length > 0;
+  const tip = CEVAP_TIPLERI[madde.cevapTip];
+  
+  let cls = "";
+  if (evalRes === "olumlu") cls = "has-ok";
+  else if (evalRes === "olumsuz") cls = "has-no";
+  else if (evalRes === "na") cls = "has-na";
+  
+  const refHtml = madde.r ? `<div class="madde-ref">${escapeHtml(madde.r)}</div>` : "";
+  const kosulNotHtml = madde.kosulNot ? `<div class="madde-ref" style="color:var(--accent); margin-top:2px;">ℹ️ ${escapeHtml(madde.kosulNot)}</div>` : "";
+  
+  let kontrolHtml = "";
+  
+  if (tip && tip.butonlar) {
+    // Buton-tabanlı kontrol
+    kontrolHtml = `<div class="madde-controls">` + tip.butonlar.map(b => {
+      const active = cevap.deger === b.val ? "active" : "";
+      return `<button class="btn-ans ${b.cls} ${active}" onclick="setCevap('${madde.id}','${b.val}')">${b.lbl}</button>`;
+    }).join("") + `</div>`;
+  } else if (madde.cevapTip === "sayi") {
+    // Sayısal input
+    let hintHtml = "";
+    if (madde.kural) {
+      const v = parseFloat(cevap.deger);
+      if (!isNaN(v)) {
+        const violated = (madde.kural.tip === "sayi_min" && v < madde.kural.min) ||
+                         (madde.kural.tip === "sayi_max" && v > madde.kural.max);
+        const cls2 = violated ? "violated" : "satisfied";
+        const icon = violated ? "✗" : "✓";
+        hintHtml = `<div class="madde-rule-hint ${cls2}">${icon} ${escapeHtml(madde.kural.mesaj)}</div>`;
+      } else {
+        hintHtml = `<div class="madde-rule-hint">${escapeHtml(madde.kural.mesaj)}</div>`;
+      }
+    }
+    kontrolHtml = `<div class="madde-input-area">
+      <div class="madde-input-row">
+        <input type="number" inputmode="decimal" value="${escapeHtml(cevap.deger || '')}" placeholder="Sayı girin" onchange="setCevap('${madde.id}', this.value)" oninput="setCevap('${madde.id}', this.value, true)">
+        ${madde.unit ? `<span class="unit">${escapeHtml(madde.unit)}</span>` : ''}
+      </div>
+      ${hintHtml}
+    </div>`;
+  } else if (madde.cevapTip === "tarih") {
+    kontrolHtml = `<div class="madde-input-area">
+      <div class="madde-input-row">
+        <input type="date" value="${escapeHtml(cevap.deger || '')}" onchange="setCevap('${madde.id}', this.value)">
+      </div>
+    </div>`;
+  } else if (madde.cevapTip === "metin") {
+    kontrolHtml = `<div class="madde-input-area">
+      <div class="madde-input-row">
+        <input type="text" value="${escapeHtml(cevap.deger || '')}" placeholder="Yazın" onchange="setCevap('${madde.id}', this.value)">
+      </div>
+    </div>`;
+  }
+  
+  return `<div class="madde ${cls}" id="madde-${madde.id}">
+    <div class="madde-head">
+      <div class="madde-no">${no}</div>
+      <div class="madde-text">
+        ${escapeHtml(madde.t)}
+        ${refHtml}
+        ${kosulNotHtml}
+      </div>
+    </div>
+    ${kontrolHtml}
+    <button class="aciklama-toggle ${hasAck?'has-aciklama':''}" onclick="toggleAciklama('${madde.id}')">
+      ${hasAck ? '✎ Açıklama var (düzenle)' : '+ Açıklama Ekle'}
+    </button>
+    <div class="aciklama-area ${hasAck?'open':''}" id="ack-${madde.id}">
+      <textarea data-key="${madde.id}" id="txt-${madde.id}" placeholder="Tespit, not, fotoğraf no vb." onchange="setAciklama('${madde.id}', this.value)">${escapeHtml(aciklama)}</textarea>
+      <div class="ack-tools">
+        <button class="mic-btn" id="mic-${madde.id}" onclick="toggleMic('${madde.id}')" title="Sesli not (Türkçe)">
+          <span class="mic-icon">🎤</span>
+          <span class="mic-label">Sesli Not</span>
+        </button>
+        <span class="mic-hint" id="hint-${madde.id}"></span>
+      </div>
+    </div>
+  </div>`;
+}
+
+function setCevap(maddeId, deger, sadeceState) {
+  if (!currentDenetim.cevaplar[maddeId]) currentDenetim.cevaplar[maddeId] = {};
+  // Buton tipinde: aynı değere tekrar basarsa temizle
+  const madde = bulMadde(maddeId);
+  const tip = CEVAP_TIPLERI[madde.cevapTip];
+  if (tip && tip.butonlar && currentDenetim.cevaplar[maddeId].deger === deger) {
+    currentDenetim.cevaplar[maddeId].deger = "";
   } else {
-    currentDenetim.cevaplar[key].durum = durum;
+    currentDenetim.cevaplar[maddeId].deger = deger;
   }
   currentDenetim.guncelleme = Date.now();
-  saveDenetim(currentDenetim);
-  // Hücre güncelle (sadece o satır)
-  const m = document.getElementById(`madde-${key}`);
-  m.classList.remove("has-var","has-yok","has-na");
-  const d = currentDenetim.cevaplar[key].durum;
-  if (d === "Var") m.classList.add("has-var");
-  else if (d === "Yok") m.classList.add("has-yok");
-  else if (d === "NA") m.classList.add("has-na");
-  m.querySelectorAll(".btn-status").forEach(b => b.classList.remove("active"));
-  if (d) m.querySelector(`.btn-status.${d.toLowerCase()}`).classList.add("active");
+  if (!sadeceState) saveDenetim(currentDenetim);
+  
+  // Sadece ilgili madde ve özetleri güncelle (tüm DOM yeniden render etmeyelim — input focus gider)
+  refreshMadde(maddeId);
+  updateAltGroupOf(maddeId);
   updateSummary();
 }
 
-function toggleAciklama(key) {
-  document.getElementById(`ack-${key}`).classList.toggle("open");
+function refreshMadde(maddeId) {
+  const madde = bulMadde(maddeId);
+  if (!madde) return;
+  const el = document.getElementById(`madde-${maddeId}`);
+  if (!el) return;
+  const cevap = currentDenetim.cevaplar[maddeId] || {};
+  const evalRes = evalCevap(madde, cevap);
+  el.classList.remove("has-ok","has-no","has-na","has-warn");
+  if (evalRes === "olumlu") el.classList.add("has-ok");
+  else if (evalRes === "olumsuz") el.classList.add("has-no");
+  else if (evalRes === "na") el.classList.add("has-na");
+  
+  // Buton-tabanlı: aktif sınıfını güncelle
+  const tip = CEVAP_TIPLERI[madde.cevapTip];
+  if (tip && tip.butonlar) {
+    el.querySelectorAll(".btn-ans").forEach((b, i) => {
+      const btnVal = tip.butonlar[i].val;
+      if (cevap.deger === btnVal) b.classList.add("active");
+      else b.classList.remove("active");
+    });
+  } else if (madde.cevapTip === "sayi" && madde.kural) {
+    // Sayısal kural ipucu güncelle
+    const hint = el.querySelector(".madde-rule-hint");
+    if (hint) {
+      const v = parseFloat(cevap.deger);
+      hint.classList.remove("violated","satisfied");
+      if (!isNaN(v)) {
+        const violated = (madde.kural.tip === "sayi_min" && v < madde.kural.min) ||
+                         (madde.kural.tip === "sayi_max" && v > madde.kural.max);
+        hint.classList.add(violated ? "violated" : "satisfied");
+        hint.textContent = (violated ? "✗ " : "✓ ") + madde.kural.mesaj;
+      } else {
+        hint.textContent = madde.kural.mesaj;
+      }
+    }
+  }
 }
 
-function setAciklama(key, val) {
-  if (!currentDenetim.cevaplar[key]) currentDenetim.cevaplar[key] = {};
-  currentDenetim.cevaplar[key].aciklama = val;
+function bulMadde(maddeId) {
+  for (const b of currentSablon.bolumler) {
+    for (const g of b.gruplar) {
+      const m = g.maddeler.find(m => m.id === maddeId);
+      if (m) return m;
+    }
+  }
+  return null;
+}
+function bulGrup(maddeId) {
+  for (const b of currentSablon.bolumler) {
+    for (const g of b.gruplar) {
+      if (g.maddeler.some(m => m.id === maddeId)) return g;
+    }
+  }
+  return null;
+}
+
+function updateAltGroupOf(maddeId) {
+  const g = bulGrup(maddeId);
+  if (g && g.tip === "alternatif") updateAltGroup(g);
+}
+function updateAllAltGroups() {
+  currentSablon.bolumler.forEach(b => b.gruplar.forEach(g => {
+    if (g.tip === "alternatif") updateAltGroup(g);
+  }));
+}
+function updateAltGroup(grup) {
+  const st = document.getElementById(`grpst-${grup.id}`);
+  if (!st) return;
+  const enAzBir = grup.maddeler.some(m => evalCevap(m, currentDenetim.cevaplar[m.id]) === "olumlu");
+  if (enAzBir) {
+    st.textContent = "✓ Sağlandı";
+    st.classList.add("satisfied");
+  } else {
+    st.textContent = "Bekleniyor";
+    st.classList.remove("satisfied");
+  }
+}
+
+function toggleAciklama(maddeId) {
+  document.getElementById(`ack-${maddeId}`).classList.toggle("open");
+}
+
+function setAciklama(maddeId, val) {
+  if (!currentDenetim.cevaplar[maddeId]) currentDenetim.cevaplar[maddeId] = {};
+  currentDenetim.cevaplar[maddeId].aciklama = val;
   currentDenetim.guncelleme = Date.now();
   saveDenetim(currentDenetim);
-  const tg = document.querySelector(`#madde-${key} .aciklama-toggle`);
-  if (val.trim()) {
-    tg.classList.add("has-aciklama");
-    tg.innerHTML = '✎ Açıklama var (düzenle)';
-  } else {
-    tg.classList.remove("has-aciklama");
-    tg.innerHTML = '+ Açıklama Ekle';
+  const tg = document.querySelector(`#madde-${maddeId} .aciklama-toggle`);
+  if (tg) {
+    if (val.trim()) {
+      tg.classList.add("has-aciklama");
+      tg.innerHTML = '✎ Açıklama var (düzenle)';
+    } else {
+      tg.classList.remove("has-aciklama");
+      tg.innerHTML = '+ Açıklama Ekle';
+    }
   }
 }
 
 function computeStats(d) {
-  return computeStatsFor(d);
-}
-
-function computeStatsFor(d) {
-  // Denetimin kendi şablonunu kullan (ana ekran için kritik)
-  const sablon = (d.sablonKey && SABLONLAR[d.sablonKey]) ? SABLONLAR[d.sablonKey] : SABLON;
-  let toplam = 0, varSay = 0, yokSay = 0, naSay = 0;
-  sablon.mahaller.forEach((mahal, mi) => {
-    mahal.maddeler.forEach((m, midx) => {
+  const sablon = getSablon(d.sablonId);
+  if (!sablon) return { toplam: 0, olumlu: 0, olumsuz: 0, na: 0, bos: 0, pct: 0, toplamCevap: 0 };
+  let toplam = 0, olumlu = 0, olumsuz = 0, na = 0;
+  
+  // Alternatif gruplar tek bir madde gibi sayılır:
+  // - olumluysa = +1 olumlu
+  // - olumsuzsa = +1 olumsuz (hiçbiri sağlanmadı, ama en az biri "Yok"/"Hayır" işaretli)
+  // - bossa = +1 bos
+  sablon.bolumler.forEach(b => b.gruplar.forEach(g => {
+    if (g.tip === "alternatif") {
       toplam++;
-      const c = d.cevaplar[`${mi}_${midx}`];
-      if (c && c.durum === "Var") varSay++;
-      else if (c && c.durum === "Yok") yokSay++;
-      else if (c && c.durum === "NA") naSay++;
-    });
-  });
-  const bos = toplam - varSay - yokSay - naSay;
-  const denominator = varSay + yokSay;
-  const pct = denominator > 0 ? Math.round((varSay / denominator) * 100) : 0;
-  return { toplam, var: varSay, yok: yokSay, na: naSay, bos, pct, toplamCevap: varSay + yokSay + naSay };
+      const enAzBirOlumlu = g.maddeler.some(m => evalCevap(m, d.cevaplar[m.id]) === "olumlu");
+      const hicCevapVar = g.maddeler.some(m => {
+        const r = evalCevap(m, d.cevaplar[m.id]);
+        return r === "olumlu" || r === "olumsuz";
+      });
+      if (enAzBirOlumlu) olumlu++;
+      else if (hicCevapVar) olumsuz++;
+      // hiç cevap yoksa boş, olumsuza eklemiyoruz
+    } else {
+      g.maddeler.forEach(m => {
+        toplam++;
+        const r = evalCevap(m, d.cevaplar[m.id]);
+        if (r === "olumlu") olumlu++;
+        else if (r === "olumsuz") olumsuz++;
+        else if (r === "na") na++;
+      });
+    }
+  }));
+  
+  const bos = toplam - olumlu - olumsuz - na;
+  const denominator = olumlu + olumsuz;
+  const pct = denominator > 0 ? Math.round((olumlu / denominator) * 100) : 0;
+  return { toplam, olumlu, olumsuz, na, bos, pct, toplamCevap: olumlu + olumsuz + na };
 }
 
 function updateSummary() {
   const s = computeStats(currentDenetim);
-  document.getElementById("sumVar").textContent = s.var;
-  document.getElementById("sumYok").textContent = s.yok;
+  document.getElementById("sumOk").textContent = s.olumlu;
+  document.getElementById("sumNo").textContent = s.olumsuz;
   document.getElementById("sumBos").textContent = s.bos;
-  document.getElementById("sumPct").textContent = (s.var + s.yok) === 0 ? "—" : "%" + s.pct;
+  document.getElementById("sumPct").textContent = (s.olumlu + s.olumsuz) === 0 ? "—" : "%" + s.pct;
 }
 
-// ==================== EDIT INFO MODAL ====================
+// ==================== EDIT INFO ====================
 function editInfo() {
   renderInfoForm("infoModalForm", currentDenetim.bilgi);
   document.getElementById("infoModal").classList.add("open");
 }
-function closeInfoModal() {
-  document.getElementById("infoModal").classList.remove("open");
-}
+function closeInfoModal() { document.getElementById("infoModal").classList.remove("open"); }
 async function saveInfoFromModal() {
   const bilgi = readInfoForm("infoModalForm");
   if (!bilgi.tesisAdi) { toast("Tesis adı zorunludur"); return; }
@@ -1147,342 +1323,11 @@ async function saveInfoFromModal() {
 }
 
 // ==================== EXPORT MODAL ====================
-function openExport() {
-  document.getElementById("exportModal").classList.add("open");
-}
-function closeExport() {
-  document.getElementById("exportModal").classList.remove("open");
-}
+function openExport() { document.getElementById("exportModal").classList.add("open"); }
+function closeExport() { document.getElementById("exportModal").classList.remove("open"); }
 
-// ==================== PDF EXPORT ====================
-function buildReportData() {
-  const d = currentDenetim;
-  const s = computeStats(d);
-  const eksikler = [];
-  const naLar = [];
-  let counter = 0;
-  SABLON.mahaller.forEach((mahal, mi) => {
-    mahal.maddeler.forEach((m, midx) => {
-      counter++;
-      const c = d.cevaplar[`${mi}_${midx}`] || {};
-      if (c.durum === "Yok") {
-        eksikler.push({
-          no: counter, mahal: mahal.ad, madde: m.t, ref: m.r,
-          aciklama: c.aciklama || ""
-        });
-      } else if (c.durum === "NA") {
-        naLar.push({ no: counter, mahal: mahal.ad, madde: m.t });
-      }
-    });
-  });
-  return { d, s, eksikler, naLar };
-}
 
-function exportPDF(returnBlob = false) {
-  const { d, s, eksikler } = buildReportData();
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit: "mm", format: "a4" });
-  
-  const margin = 15;
-  let y = margin;
-  
-  // Başlık
-  doc.setFillColor(26, 58, 82);
-  doc.rect(0, 0, 210, 28, "F");
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(16);
-  doc.setFont("helvetica", "bold");
-  doc.text("TESIS DENETIM RAPORU", margin, 12);
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "normal");
-  doc.text(SABLON.baslik, margin, 19);
-  doc.text("Tarih: " + fmtDate(d.bilgi.denetimTarihi), margin, 24);
-  
-  y = 36;
-  doc.setTextColor(0, 0, 0);
-  
-  // Tesis bilgileri
-  doc.setFontSize(11);
-  doc.setFont("helvetica", "bold");
-  doc.text("TESIS BILGILERI", margin, y);
-  y += 5;
-  doc.setLineWidth(0.3);
-  doc.line(margin, y, 210 - margin, y);
-  y += 4;
-  
-  doc.setFontSize(9);
-  doc.setFont("helvetica", "normal");
-  SABLON.bilgiAlanlari.forEach(f => {
-    const val = d.bilgi[f.key] || "-";
-    const display = f.type === "date" && d.bilgi[f.key] ? fmtDate(d.bilgi[f.key]) : val;
-    doc.setFont("helvetica", "bold");
-    doc.text(f.label + ":", margin, y);
-    doc.setFont("helvetica", "normal");
-    const lines = doc.splitTextToSize(display, 130);
-    doc.text(lines, margin + 50, y);
-    y += Math.max(5, lines.length * 4.5);
-  });
-  
-  y += 4;
-  
-  // Özet kutusu
-  doc.setFillColor(245, 243, 238);
-  doc.rect(margin, y, 180, 20, "F");
-  doc.setLineWidth(0.3);
-  doc.rect(margin, y, 180, 20);
-  doc.setFontSize(9);
-  doc.setFont("helvetica", "bold");
-  doc.text("DENETIM OZETI", margin + 3, y + 5);
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(10);
-  const colW = 36;
-  const items = [
-    ["Toplam Madde", String(s.toplam)],
-    ["Var (Uygun)", String(s.var)],
-    ["Yok (Eksik)", String(s.yok)],
-    ["Yok Say", String(s.na)],
-    ["Uygunluk", (s.var + s.yok) === 0 ? "-" : "%" + s.pct]
-  ];
-  items.forEach((it, idx) => {
-    const x = margin + 3 + idx * colW;
-    doc.setFontSize(8);
-    doc.setFont("helvetica", "normal");
-    doc.text(it[0], x, y + 11);
-    doc.setFontSize(13);
-    doc.setFont("helvetica", "bold");
-    doc.text(it[1], x, y + 17);
-  });
-  y += 26;
-  
-  // Eksikler tablosu
-  doc.setFontSize(11);
-  doc.setFont("helvetica", "bold");
-  doc.setTextColor(163, 45, 45);
-  doc.text(`TESPIT EDILEN EKSIKLIKLER (${eksikler.length})`, margin, y);
-  doc.setTextColor(0, 0, 0);
-  y += 3;
-  
-  if (eksikler.length === 0) {
-    y += 6;
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "italic");
-    doc.text("Eksiklik tespit edilmemistir.", margin, y);
-    y += 8;
-  } else {
-    doc.autoTable({
-      startY: y + 2,
-      head: [["#", "Mahal", "Eksik Nitelik", "Aciklama", "Mevzuat"]],
-      body: eksikler.map(e => [e.no, e.mahal, e.madde, e.aciklama || "-", e.ref]),
-      styles: { fontSize: 8, cellPadding: 2, font: "helvetica" },
-      headStyles: { fillColor: [26, 58, 82], textColor: 255, fontStyle: "bold" },
-      columnStyles: {
-        0: { cellWidth: 8, halign: "center" },
-        1: { cellWidth: 28 },
-        2: { cellWidth: 70 },
-        3: { cellWidth: 50 },
-        4: { cellWidth: 22, fontSize: 7 }
-      },
-      margin: { left: margin, right: margin }
-    });
-    y = doc.lastAutoTable.finalY + 8;
-  }
-  
-  // İmza
-  if (y > 250) { doc.addPage(); y = margin; }
-  y += 10;
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "bold");
-  doc.text("Denetci:", margin, y);
-  doc.text("Tesis Yetkilisi:", 120, y);
-  y += 2;
-  doc.setLineWidth(0.3);
-  doc.line(margin, y + 12, margin + 60, y + 12);
-  doc.line(120, y + 12, 180, y + 12);
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(9);
-  doc.text(d.bilgi.denetciAdi || "", margin, y + 17);
-  
-  // Footer her sayfa
-  const pageCount = doc.internal.getNumberOfPages();
-  for (let i = 1; i <= pageCount; i++) {
-    doc.setPage(i);
-    doc.setFontSize(8);
-    doc.setTextColor(140, 140, 140);
-    doc.text(`Sayfa ${i} / ${pageCount}`, 210 - margin, 290, { align: "right" });
-    doc.text(d.bilgi.tesisAdi || "Denetim", margin, 290);
-  }
-  
-  const fname = `Denetim_${(d.bilgi.tesisAdi || "tesis").replace(/[^a-z0-9çğıöşüÇĞİÖŞÜ ]/gi, "").replace(/\s+/g, "_")}_${(d.bilgi.denetimTarihi || "").replace(/-/g,"")}.pdf`;
-  
-  if (returnBlob) {
-    return { blob: doc.output("blob"), filename: fname };
-  }
-  doc.save(fname);
-  closeExport();
-  toast("PDF indirildi");
-}
-
-// ==================== WORD EXPORT ====================
-async function exportWord() {
-  const { d, s, eksikler } = buildReportData();
-  const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, AlignmentType, HeadingLevel, BorderStyle, ShadingType } = docx;
-  
-  const blueColor = "1A3A52";
-  const accentColor = "B8542A";
-  
-  const titleP = new Paragraph({
-    children: [ new TextRun({ text: "TESİS DENETİM RAPORU", bold: true, size: 32, color: blueColor }) ],
-    spacing: { after: 100 }
-  });
-  const subP = new Paragraph({
-    children: [ new TextRun({ text: SABLON.baslik, size: 22, color: "555555" }) ],
-    spacing: { after: 300 }
-  });
-  
-  // Tesis bilgileri tablosu
-  const bilgiRows = SABLON.bilgiAlanlari.map(f => {
-    const val = d.bilgi[f.key] || "-";
-    const display = f.type === "date" && d.bilgi[f.key] ? fmtDate(d.bilgi[f.key]) : val;
-    return new TableRow({ children: [
-      new TableCell({
-        width: { size: 35, type: WidthType.PERCENTAGE },
-        shading: { type: ShadingType.SOLID, color: "F5F3EE" },
-        children: [new Paragraph({ children: [new TextRun({ text: f.label, bold: true, size: 20 })] })]
-      }),
-      new TableCell({
-        width: { size: 65, type: WidthType.PERCENTAGE },
-        children: [new Paragraph({ children: [new TextRun({ text: display, size: 20 })] })]
-      })
-    ]});
-  });
-  const bilgiTable = new Table({
-    width: { size: 100, type: WidthType.PERCENTAGE },
-    rows: bilgiRows
-  });
-  
-  // Özet
-  const ozetHeader = new Paragraph({
-    children: [new TextRun({ text: "DENETİM ÖZETİ", bold: true, size: 24, color: blueColor })],
-    spacing: { before: 300, after: 150 }
-  });
-  const pctText = (s.var + s.yok) === 0 ? "—" : "%" + s.pct;
-  const ozetTable = new Table({
-    width: { size: 100, type: WidthType.PERCENTAGE },
-    rows: [
-      new TableRow({ children: [
-        ["Toplam","Var","Yok","Yok Say","Uygunluk"].map(h => new TableCell({
-          shading: { type: ShadingType.SOLID, color: blueColor },
-          children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: h, bold: true, color: "FFFFFF", size: 18 })] })]
-        }))
-      ].flat() }),
-      new TableRow({ children: [
-        [s.toplam, s.var, s.yok, s.na, pctText].map(v => new TableCell({
-          children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: String(v), bold: true, size: 26 })] })]
-        }))
-      ].flat() })
-    ]
-  });
-  
-  // Eksikler
-  const eksikHeader = new Paragraph({
-    children: [new TextRun({ text: `TESPİT EDİLEN EKSİKLİKLER (${eksikler.length})`, bold: true, size: 24, color: "A32D2D" })],
-    spacing: { before: 400, after: 150 }
-  });
-  
-  let eksikContent;
-  if (eksikler.length === 0) {
-    eksikContent = new Paragraph({
-      children: [new TextRun({ text: "Eksiklik tespit edilmemiştir.", italics: true, size: 22 })]
-    });
-  } else {
-    const headerRow = new TableRow({ children: 
-      ["#","Mahal","Eksik Nitelik","Açıklama","Mevzuat"].map(h => new TableCell({
-        shading: { type: ShadingType.SOLID, color: blueColor },
-        children: [new Paragraph({ children: [new TextRun({ text: h, bold: true, color: "FFFFFF", size: 18 })] })]
-      }))
-    });
-    const dataRows = eksikler.map(e => new TableRow({ children: [
-      new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: String(e.no), size: 18 })] })] }),
-      new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: e.mahal, size: 18 })] })] }),
-      new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: e.madde, size: 18 })] })] }),
-      new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: e.aciklama || "-", size: 18 })] })] }),
-      new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: e.ref, size: 16, color: "888888" })] })] })
-    ]}));
-    eksikContent = new Table({
-      width: { size: 100, type: WidthType.PERCENTAGE },
-      rows: [headerRow, ...dataRows]
-    });
-  }
-  
-  // İmza
-  const imzaP = new Paragraph({
-    children: [new TextRun({ text: "\n\nDenetçi: " + (d.bilgi.denetciAdi || "_______________") + "        Tesis Yetkilisi: _______________", size: 20 })],
-    spacing: { before: 600 }
-  });
-  
-  const doc2 = new Document({
-    sections: [{
-      properties: {},
-      children: [
-        titleP, subP,
-        new Paragraph({ children: [new TextRun({ text: "TESİS BİLGİLERİ", bold: true, size: 24, color: blueColor })], spacing: { after: 150 } }),
-        bilgiTable,
-        ozetHeader, ozetTable,
-        eksikHeader, eksikContent,
-        imzaP
-      ]
-    }]
-  });
-  
-  const blob = await Packer.toBlob(doc2);
-  const fname = `Denetim_${(d.bilgi.tesisAdi || "tesis").replace(/[^a-z0-9çğıöşüÇĞİÖŞÜ ]/gi, "").replace(/\s+/g, "_")}_${(d.bilgi.denetimTarihi || "").replace(/-/g,"")}.docx`;
-  saveAs(blob, fname);
-  closeExport();
-  toast("Word dosyası indirildi");
-}
-
-// ==================== SHARE PDF ====================
-async function sharePDF() {
-  const result = exportPDF(true);
-  const file = new File([result.blob], result.filename, { type: "application/pdf" });
-  
-  if (navigator.canShare && navigator.canShare({ files: [file] })) {
-    try {
-      await navigator.share({
-        files: [file],
-        title: "Denetim Raporu",
-        text: `${currentDenetim.bilgi.tesisAdi || "Tesis"} denetim raporu`
-      });
-      closeExport();
-    } catch (e) {
-      if (e.name !== "AbortError") {
-        toast("Paylaşım başarısız: " + e.message);
-      }
-    }
-  } else {
-    // Fallback: indir + bilgilendir
-    saveAs(result.blob, result.filename);
-    toast("PDF indirildi. Galeri/Dosyalar'dan WhatsApp'ta paylaşabilirsiniz.");
-    closeExport();
-  }
-}
-
-// ==================== INSTALL PROMPT ====================
-let deferredInstall = null;
-window.addEventListener("beforeinstallprompt", (e) => {
-  e.preventDefault();
-  deferredInstall = e;
-  document.getElementById("installBanner").classList.add("show");
-});
-async function installApp() {
-  if (!deferredInstall) return;
-  deferredInstall.prompt();
-  await deferredInstall.userChoice;
-  deferredInstall = null;
-  document.getElementById("installBanner").classList.remove("show");
-}
-
-// ==================== SPEECH-TO-TEXT (Web Speech API) ====================
+// ==================== SPEECH-TO-TEXT ====================
 let activeRecognition = null;
 let activeRecKey = null;
 let baseTextBeforeRecording = "";
@@ -1492,27 +1337,17 @@ function getSpeechRecognition() {
 }
 
 function toggleMic(key) {
-  // Eğer aynı maddede kayıt aktifse → durdur
-  if (activeRecognition && activeRecKey === key) {
-    activeRecognition.stop();
-    return;
-  }
-  // Başka bir maddede aktifse → onu durdur, sonra yeniyi başlat
-  if (activeRecognition) {
-    activeRecognition.stop();
-    setTimeout(() => startMic(key), 200);
-    return;
-  }
+  if (activeRecognition && activeRecKey === key) { activeRecognition.stop(); return; }
+  if (activeRecognition) { activeRecognition.stop(); setTimeout(() => startMic(key), 200); return; }
   startMic(key);
 }
 
 function startMic(key) {
   const SR = getSpeechRecognition();
   if (!SR) {
-    setHint(key, "Bu tarayıcı sesli yazıya çevirmeyi desteklemiyor (Chrome veya Safari deneyin)", true);
+    setHint(key, "Bu tarayıcı sesli yazıya çevirmeyi desteklemiyor", true);
     return;
   }
-  
   const txt = document.getElementById(`txt-${key}`);
   const micBtn = document.getElementById(`mic-${key}`);
   baseTextBeforeRecording = txt.value;
@@ -1530,8 +1365,7 @@ function startMic(key) {
   };
   
   rec.onresult = (event) => {
-    // GÜVENLI YAKLAŞIM: her seferinde tüm sonuçları sıfırdan oku.
-    // Bu, tarayıcının sonuçları tekrar göndermesi durumunda bile dublikasyona yol açmaz.
+    // Her seferinde sıfırdan inşa et — tekrar imkansız
     let allFinal = "";
     let interim = "";
     for (let i = 0; i < event.results.length; i++) {
@@ -1542,7 +1376,7 @@ function startMic(key) {
         interim += transcript;
       }
     }
-    finalTranscript = allFinal; // tamamen yeniden ata
+    finalTranscript = allFinal;
     const combined = combineText(baseTextBeforeRecording, finalTranscript, interim);
     txt.value = combined;
     if (interim) setHint(key, "… " + interim.trim().slice(-40), false, true);
@@ -1550,9 +1384,9 @@ function startMic(key) {
   
   rec.onerror = (e) => {
     let msg = "Hata: " + e.error;
-    if (e.error === "not-allowed") msg = "Mikrofon izni verilmedi. Tarayıcı ayarlarından izin verin.";
+    if (e.error === "not-allowed") msg = "Mikrofon izni verilmedi";
     else if (e.error === "no-speech") msg = "Ses algılanmadı";
-    else if (e.error === "network") msg = "İnternet gerekiyor (sesli yazıya çevirme bulutta yapılır)";
+    else if (e.error === "network") msg = "İnternet gerekiyor";
     else if (e.error === "audio-capture") msg = "Mikrofon bulunamadı";
     setHint(key, msg, true);
   };
@@ -1561,7 +1395,6 @@ function startMic(key) {
     micBtn.classList.remove("recording");
     activeRecognition = null;
     activeRecKey = null;
-    // Final metni kaydet
     const finalCombined = combineText(baseTextBeforeRecording, finalTranscript, "");
     txt.value = finalCombined;
     setAciklama(key, finalCombined);
@@ -1597,15 +1430,358 @@ function setHint(key, msg, isError = false, isLive = false) {
   h.classList.toggle("live", isLive);
 }
 
+// ==================== EXPORT ====================
+function buildReportData() {
+  const d = currentDenetim;
+  const sablon = currentSablon;
+  const s = computeStats(d);
+  const eksikler = []; // olumsuz olanlar
+  const naLar = [];
+  const sayisalKurallar = []; // sayısal kural ihlalleri
+  let counter = 0;
+  
+  sablon.bolumler.forEach(bolum => {
+    bolum.gruplar.forEach(grup => {
+      if (grup.tip === "alternatif") {
+        // Grup bazında değerlendirme
+        counter++;
+        const enAzBirOlumlu = grup.maddeler.some(m => evalCevap(m, d.cevaplar[m.id]) === "olumlu");
+        const hicCevapVar = grup.maddeler.some(m => {
+          const r = evalCevap(m, d.cevaplar[m.id]);
+          return r === "olumlu" || r === "olumsuz";
+        });
+        if (!enAzBirOlumlu && hicCevapVar) {
+          // Grup eksik
+          const aciklamalar = grup.maddeler
+            .filter(m => (d.cevaplar[m.id] || {}).aciklama)
+            .map(m => `[${m.t.slice(0,30)}…] ${d.cevaplar[m.id].aciklama}`)
+            .join(" | ");
+          eksikler.push({
+            no: counter,
+            bolum: bolum.ad,
+            mahal: grup.ad,
+            madde: "Bu gruptaki niteliklerden HİÇBİRİ sağlanmadı (en az biri zorunlu)",
+            aciklama: aciklamalar || "",
+            ref: grup.maddeler[0].r || ""
+          });
+        }
+      } else {
+        grup.maddeler.forEach(m => {
+          counter++;
+          const cevap = d.cevaplar[m.id] || {};
+          const r = evalCevap(m, cevap);
+          if (r === "olumsuz") {
+            // Sayısal mı?
+            let degerStr = "";
+            if (m.cevapTip === "sayi" && cevap.deger) {
+              degerStr = ` (girilen: ${cevap.deger}${m.unit || ""})`;
+            } else if (cevap.deger && CEVAP_TIPLERI[m.cevapTip] && !CEVAP_TIPLERI[m.cevapTip].butonlar) {
+              degerStr = ` (${cevap.deger})`;
+            }
+            eksikler.push({
+              no: counter,
+              bolum: bolum.ad,
+              mahal: grup.ad || "",
+              madde: m.t + degerStr,
+              aciklama: cevap.aciklama || "",
+              ref: m.r || ""
+            });
+            if (m.cevapTip === "sayi" && m.kural) {
+              sayisalKurallar.push({ madde: m.t, deger: cevap.deger, kural: m.kural.mesaj });
+            }
+          } else if (r === "na") {
+            naLar.push({ no: counter, mahal: grup.ad || "", madde: m.t });
+          }
+        });
+      }
+    });
+  });
+  
+  return { d, sablon, s, eksikler, naLar, sayisalKurallar };
+}
+
+function exportPDF(returnBlob = false) {
+  const { d, sablon, s, eksikler } = buildReportData();
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: "mm", format: "a4" });
+  
+  const margin = 15;
+  let y = margin;
+  
+  doc.setFillColor(26, 58, 82);
+  doc.rect(0, 0, 210, 28, "F");
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(16);
+  doc.setFont("helvetica", "bold");
+  doc.text("TESIS DENETIM RAPORU", margin, 12);
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  doc.text(sablon.ad, margin, 19);
+  doc.text("Tarih: " + fmtDate(d.bilgi.denetimTarihi), margin, 24);
+  
+  y = 36;
+  doc.setTextColor(0, 0, 0);
+  
+  doc.setFontSize(11);
+  doc.setFont("helvetica", "bold");
+  doc.text("TESIS BILGILERI", margin, y);
+  y += 5;
+  doc.setLineWidth(0.3);
+  doc.line(margin, y, 210 - margin, y);
+  y += 4;
+  
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "normal");
+  sablon.bilgiAlanlari.forEach(f => {
+    const val = d.bilgi[f.key] || "-";
+    const display = f.type === "date" && d.bilgi[f.key] ? fmtDate(d.bilgi[f.key]) : val;
+    doc.setFont("helvetica", "bold");
+    doc.text(f.label + ":", margin, y);
+    doc.setFont("helvetica", "normal");
+    const lines = doc.splitTextToSize(display, 130);
+    doc.text(lines, margin + 50, y);
+    y += Math.max(5, lines.length * 4.5);
+  });
+  
+  y += 4;
+  doc.setFillColor(245, 243, 238);
+  doc.rect(margin, y, 180, 20, "F");
+  doc.setLineWidth(0.3);
+  doc.rect(margin, y, 180, 20);
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "bold");
+  doc.text("DENETIM OZETI", margin + 3, y + 5);
+  doc.setFont("helvetica", "normal");
+  
+  const colW = 36;
+  const items = [
+    ["Toplam", String(s.toplam)],
+    ["Uygun", String(s.olumlu)],
+    ["Eksik", String(s.olumsuz)],
+    ["Uygulanmaz", String(s.na)],
+    ["Uygunluk", (s.olumlu + s.olumsuz) === 0 ? "-" : "%" + s.pct]
+  ];
+  items.forEach((it, idx) => {
+    const x = margin + 3 + idx * colW;
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "normal");
+    doc.text(it[0], x, y + 11);
+    doc.setFontSize(13);
+    doc.setFont("helvetica", "bold");
+    doc.text(it[1], x, y + 17);
+  });
+  y += 26;
+  
+  doc.setFontSize(11);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(163, 45, 45);
+  doc.text(`TESPIT EDILEN EKSIKLIKLER (${eksikler.length})`, margin, y);
+  doc.setTextColor(0, 0, 0);
+  y += 3;
+  
+  if (eksikler.length === 0) {
+    y += 6;
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "italic");
+    doc.text("Eksiklik tespit edilmemistir.", margin, y);
+    y += 8;
+  } else {
+    doc.autoTable({
+      startY: y + 2,
+      head: [["#", "Bolum / Mahal", "Eksik Nitelik", "Aciklama", "Mevzuat"]],
+      body: eksikler.map(e => [e.no, (e.bolum + (e.mahal ? " — " + e.mahal : "")).slice(0,40), e.madde, e.aciklama || "-", e.ref]),
+      styles: { fontSize: 8, cellPadding: 2, font: "helvetica" },
+      headStyles: { fillColor: [26, 58, 82], textColor: 255, fontStyle: "bold" },
+      columnStyles: {
+        0: { cellWidth: 8, halign: "center" },
+        1: { cellWidth: 35 },
+        2: { cellWidth: 65 },
+        3: { cellWidth: 50 },
+        4: { cellWidth: 22, fontSize: 7 }
+      },
+      margin: { left: margin, right: margin }
+    });
+    y = doc.lastAutoTable.finalY + 8;
+  }
+  
+  if (y > 250) { doc.addPage(); y = margin; }
+  y += 10;
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "bold");
+  doc.text("Denetci:", margin, y);
+  doc.text("Tesis Yetkilisi:", 120, y);
+  y += 2;
+  doc.setLineWidth(0.3);
+  doc.line(margin, y + 12, margin + 60, y + 12);
+  doc.line(120, y + 12, 180, y + 12);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.text(d.bilgi.denetciAdi || "", margin, y + 17);
+  
+  const pageCount = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFontSize(8);
+    doc.setTextColor(140, 140, 140);
+    doc.text(`Sayfa ${i} / ${pageCount}`, 210 - margin, 290, { align: "right" });
+    doc.text((d.bilgi.tesisAdi || "Denetim") + " — " + sablon.ad, margin, 290);
+  }
+  
+  const fname = `Denetim_${(d.bilgi.tesisAdi || "tesis").replace(/[^a-z0-9çğıöşüÇĞİÖŞÜ ]/gi, "").replace(/\s+/g, "_")}_${(d.bilgi.denetimTarihi || "").replace(/-/g,"")}.pdf`;
+  
+  if (returnBlob) return { blob: doc.output("blob"), filename: fname };
+  doc.save(fname);
+  closeExport();
+  toast("PDF indirildi");
+}
+
+async function exportWord() {
+  const { d, sablon, s, eksikler } = buildReportData();
+  const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, AlignmentType, ShadingType } = docx;
+  
+  const blueColor = "1A3A52";
+  
+  const titleP = new Paragraph({
+    children: [ new TextRun({ text: "TESİS DENETİM RAPORU", bold: true, size: 32, color: blueColor }) ],
+    spacing: { after: 100 }
+  });
+  const subP = new Paragraph({
+    children: [ new TextRun({ text: sablon.ad, size: 22, color: "555555" }) ],
+    spacing: { after: 300 }
+  });
+  
+  const bilgiRows = sablon.bilgiAlanlari.map(f => {
+    const val = d.bilgi[f.key] || "-";
+    const display = f.type === "date" && d.bilgi[f.key] ? fmtDate(d.bilgi[f.key]) : val;
+    return new TableRow({ children: [
+      new TableCell({
+        width: { size: 35, type: WidthType.PERCENTAGE },
+        shading: { type: ShadingType.SOLID, color: "F5F3EE" },
+        children: [new Paragraph({ children: [new TextRun({ text: f.label, bold: true, size: 20 })] })]
+      }),
+      new TableCell({
+        width: { size: 65, type: WidthType.PERCENTAGE },
+        children: [new Paragraph({ children: [new TextRun({ text: display, size: 20 })] })]
+      })
+    ]});
+  });
+  const bilgiTable = new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, rows: bilgiRows });
+  
+  const ozetHeader = new Paragraph({
+    children: [new TextRun({ text: "DENETİM ÖZETİ", bold: true, size: 24, color: blueColor })],
+    spacing: { before: 300, after: 150 }
+  });
+  const pctText = (s.olumlu + s.olumsuz) === 0 ? "—" : "%" + s.pct;
+  const ozetTable = new Table({
+    width: { size: 100, type: WidthType.PERCENTAGE },
+    rows: [
+      new TableRow({ children:
+        ["Toplam","Uygun","Eksik","Uygulanmaz","Uygunluk"].map(h => new TableCell({
+          shading: { type: ShadingType.SOLID, color: blueColor },
+          children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: h, bold: true, color: "FFFFFF", size: 18 })] })]
+        }))
+      }),
+      new TableRow({ children:
+        [s.toplam, s.olumlu, s.olumsuz, s.na, pctText].map(v => new TableCell({
+          children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: String(v), bold: true, size: 26 })] })]
+        }))
+      })
+    ]
+  });
+  
+  const eksikHeader = new Paragraph({
+    children: [new TextRun({ text: `TESPİT EDİLEN EKSİKLİKLER (${eksikler.length})`, bold: true, size: 24, color: "A32D2D" })],
+    spacing: { before: 400, after: 150 }
+  });
+  
+  let eksikContent;
+  if (eksikler.length === 0) {
+    eksikContent = new Paragraph({ children: [new TextRun({ text: "Eksiklik tespit edilmemiştir.", italics: true, size: 22 })] });
+  } else {
+    const headerRow = new TableRow({ children:
+      ["#","Bölüm/Mahal","Eksik Nitelik","Açıklama","Mevzuat"].map(h => new TableCell({
+        shading: { type: ShadingType.SOLID, color: blueColor },
+        children: [new Paragraph({ children: [new TextRun({ text: h, bold: true, color: "FFFFFF", size: 18 })] })]
+      }))
+    });
+    const dataRows = eksikler.map(e => new TableRow({ children: [
+      new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: String(e.no), size: 18 })] })] }),
+      new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: e.bolum + (e.mahal ? " — " + e.mahal : ""), size: 18 })] })] }),
+      new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: e.madde, size: 18 })] })] }),
+      new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: e.aciklama || "-", size: 18 })] })] }),
+      new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: e.ref, size: 16, color: "888888" })] })] })
+    ]}));
+    eksikContent = new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, rows: [headerRow, ...dataRows] });
+  }
+  
+  const imzaP = new Paragraph({
+    children: [new TextRun({ text: "\n\nDenetçi: " + (d.bilgi.denetciAdi || "_______________") + "        Tesis Yetkilisi: _______________", size: 20 })],
+    spacing: { before: 600 }
+  });
+  
+  const doc2 = new Document({
+    sections: [{ properties: {}, children: [
+      titleP, subP,
+      new Paragraph({ children: [new TextRun({ text: "TESİS BİLGİLERİ", bold: true, size: 24, color: blueColor })], spacing: { after: 150 } }),
+      bilgiTable,
+      ozetHeader, ozetTable,
+      eksikHeader, eksikContent,
+      imzaP
+    ]}]
+  });
+  
+  const blob = await Packer.toBlob(doc2);
+  const fname = `Denetim_${(d.bilgi.tesisAdi || "tesis").replace(/[^a-z0-9çğıöşüÇĞİÖŞÜ ]/gi, "").replace(/\s+/g, "_")}_${(d.bilgi.denetimTarihi || "").replace(/-/g,"")}.docx`;
+  saveAs(blob, fname);
+  closeExport();
+  toast("Word dosyası indirildi");
+}
+
+async function sharePDF() {
+  const result = exportPDF(true);
+  const file = new File([result.blob], result.filename, { type: "application/pdf" });
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({
+        files: [file],
+        title: "Denetim Raporu",
+        text: `${currentDenetim.bilgi.tesisAdi || "Tesis"} denetim raporu`
+      });
+      closeExport();
+    } catch (e) {
+      if (e.name !== "AbortError") toast("Paylaşım başarısız: " + e.message);
+    }
+  } else {
+    saveAs(result.blob, result.filename);
+    toast("PDF indirildi. Galeri/Dosyalar'dan paylaşabilirsiniz.");
+    closeExport();
+  }
+}
+
+// ==================== INSTALL PROMPT ====================
+let deferredInstall = null;
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredInstall = e;
+  document.getElementById("installBanner").classList.add("show");
+});
+async function installApp() {
+  if (!deferredInstall) return;
+  deferredInstall.prompt();
+  await deferredInstall.userChoice;
+  deferredInstall = null;
+  document.getElementById("installBanner").classList.remove("show");
+}
+
 // ==================== INIT ====================
 (async function init() {
   await openDB();
   await refreshHome();
-  // Sesli not desteği kontrolü (sadece bilgi)
   if (!getSpeechRecognition()) {
-    console.warn("Web Speech API desteklenmiyor. Sesli not özelliği çalışmayacak.");
+    console.warn("Web Speech API desteklenmiyor");
   }
 })();
+
 </script>
 </body>
 </html>
