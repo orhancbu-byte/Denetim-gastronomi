@@ -511,6 +511,32 @@ body {
 }
 .modal-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
 
+.tur-list { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+.tur-card {
+  background: var(--paper);
+  border: 1.5px solid var(--line);
+  border-left: 4px solid var(--accent);
+  border-radius: 8px;
+  padding: 14px 16px;
+  cursor: pointer;
+  text-align: left;
+  font-family: 'Lora', serif;
+  transition: all 0.15s;
+}
+.tur-card:active { background: var(--line-soft); transform: scale(0.99); }
+.tur-card-title {
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  font-size: 17px;
+  color: var(--primary);
+  margin-bottom: 4px;
+}
+.tur-card-desc {
+  font-size: 13px;
+  color: var(--ink-soft);
+  line-height: 1.4;
+}
+
 /* === INSTALL PROMPT === */
 .install-banner {
   background: var(--accent);
@@ -568,7 +594,7 @@ body {
 <div class="screen active" id="screen-home">
   <div class="hero">
     <div class="hero-inner">
-      <div class="label">Turizm Bakanlığı</div>
+      <div class="label">Kültür ve Turizm Bakanlığı</div>
       <h2>Tesis Denetimi</h2>
       <p>Saha denetim asistanı</p>
     </div>
@@ -643,83 +669,118 @@ body {
   </div>
 </div>
 
+<!-- ===== TUR SECIM MODAL ===== -->
+<div class="modal-bg" id="turModal">
+  <div class="modal">
+    <h3>Denetim Türü Seçin</h3>
+    <p style="color:var(--ink-soft); font-size:14px; margin: 0 0 12px;">Hangi tesis türü için denetim yapacaksınız?</p>
+    <div id="turList" class="tur-list"></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeTurModal()">İptal</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
-// ==================== ŞABLON: madde listesi ====================
-const SABLON = {
-  id: "gastronomi_lokanta_v1",
-  baslik: "Gastronomi Tesisi / 1. Sınıf Lokanta",
-  bilgiAlanlari: [
-    { key: "tesisAdi", label: "Tesisin Adı", required: true },
-    { key: "adres", label: "Adresi" },
-    { key: "telefon", label: "Telefon / Faks" },
-    { key: "belgeNo", label: "Belge Tarih ve No" },
-    { key: "belgeSahibi", label: "Belge Sahibi / Girişimci" },
-    { key: "denetimNedeni", label: "Denetleme Nedeni" },
-    { key: "denetimTarihi", label: "Denetleme Tarihi", type: "date" },
-    { key: "kapasite", label: "Kapasite" },
-    { key: "denetciAdi", label: "Denetçi Adı" }
-  ],
-  mahaller: [
-    { ad: "Giriş Holü", maddeler: [
-      { t: "Bankolu vestiyer", r: "Y:26" },
-      { t: "İdare odası", r: "Y:26" },
-      { t: "Genel WC (bay ve bayan için ayrı)", r: "Y:26" },
-      { t: "WC havalandırma (doğal veya mekanik)", r: "Y:26" },
-      { t: "Lavabolarda sıcak su", r: "Y:26" },
-      { t: "Klozet veya alaturka tuvalet", r: "Y:26" }
-    ]},
-    { ad: "Yemek Salonu", maddeler: [
-      { t: "Ana yemek salonu kapasitesi (min. 50 kişi / 60 m²)", r: "Y:26-2/b-1" },
-      { t: "Salon dekorasyonu (yöresel/ulusal/uluslararası mutfağa uygun)", r: "Y:26" },
-      { t: "Tefriş (masa-sandalye-örtü kalitesi)", r: "Y:26" },
-      { t: "Aydınlatma yeterliliği", r: "Y:26" },
-      { t: "Müzik yayını / canlı yemek müziği imkânı", r: "Y:26" },
-      { t: "Havalandırma ve klima sistemi", r: "Y:26" },
-      { t: "Salon-mutfak doğrudan bağlantı veya servis mutfağı", r: "Y:26-2/b-1" },
-      { t: "Salon ve servis ayrı kattaysa servis merdiveni veya monşarj", r: "Y:26-2/b-1" }
-    ]},
-    { ad: "Mutfak", maddeler: [
-      { t: "Mutfak alanı (min. 25 m² / salonun %25'i, büyük salonlarda min. 50 m²)", r: "Y:26-2/b-1" },
-      { t: "Hazırlık yerleri (sunulan yiyecek türlerine uygun)", r: "Y:26-2/b-1" },
-      { t: "Pişirme donanımı (ızgara, kuzine, fırın vb.)", r: "Y:26-2/b-1" },
-      { t: "Yemek/tabak sıcak saklama teçhizatı", r: "Y:26" },
-      { t: "Bulaşık makinesi (servis takımları için)", r: "Y:26-2/b-1" },
-      { t: "Yıkama, kurutma, istif yerleri", r: "Y:26" },
-      { t: "Raflar ve dolaplar", r: "Y:26" },
-      { t: "Malzeme deposu", r: "Y:26-2/b-1" },
-      { t: "Soğuk saklama deposu veya soğuk dolap (alarm, içeriden açılabilir)", r: "Y:26-2/b-1" },
-      { t: "Soğuk-sıcak sunum donanımı", r: "Y:26-2/b-1" },
-      { t: "Tatlı / pasta hazırlık ve servis yerleri", r: "Y:26" },
-      { t: "Servis mahalleri ile bağlantılı servis girişi", r: "Y:26" },
-      { t: "Zemin ve duvar kaplama (hijyenik, kolay temizlenebilir)", r: "Y:26" },
-      { t: "Mutfak havalandırması (doğal veya mekanik)", r: "Y:26" }
-    ]},
-    { ad: "Menü ve Servis", maddeler: [
-      { t: "Menü (sıcak, soğuk, tatlı en az beş yemek)", r: "Y:26" },
-      { t: "Yöresel / ulusal / uluslararası mutfak özelliği", r: "Y:26-1" },
-      { t: "Marka bilinirliği veya ün belgesi (basın/yayın)", r: "Y:26-2/a-1, T:9-1" }
-    ]},
-    { ad: "Teknik Altyapı", maddeler: [
-      { t: "Merkezi ısıtma (yıl boyu/kışın açık tesislerde)", r: "Y:26" },
-      { t: "Jeneratör (100 kuverin üzerindeyse)", r: "Y:26" },
-      { t: "Sıcak ve soğuk su", r: "Y:26" },
-      { t: "Su deposu + hidrofor/pompa (şehir dışı: klorlama+arıtma)", r: "Y:26" }
-    ]},
-    { ad: "Personel Mahalleri (bay ve bayan ayrı)", maddeler: [
-      { t: "Soyunma yerleri ve dolapları", r: "Y:26" },
-      { t: "Duş, WC, lavabo", r: "Y:26" },
-      { t: "Personel mahalleri havalandırma", r: "Y:26" },
-      { t: "Personelin SGK kayıtları", r: "Y:26" }
-    ]},
-    { ad: "Genel Değerlendirme", maddeler: [
-      { t: "İşletmenin yoğun turizm bölgesinde yer alması", r: "Y:26-2/a-5" },
-      { t: "Genel hijyen ve temizlik durumu", r: "Genel" },
-      { t: "Yangın/acil çıkış güvenlik tedbirleri", r: "Genel" }
-    ]}
-  ]
+// ==================== ŞABLON KATALOĞU ====================
+// Yeni tesis türleri eklemek için: SABLONLAR objesine yeni bir anahtar ekle.
+// Yapı: { id, baslik, kisaAd, aciklama, bilgiAlanlari[], mahaller[] }
+
+const SABLONLAR = {
+  
+  gastronomi: {
+    id: "gastronomi_v2",
+    baslik: "Gastronomi Tesisi",
+    kisaAd: "Gastronomi",
+    aciklama: "Yöresel/ulusal/uluslararası mutfak sunan, bakanlık desteği uygun bulunan yeme-içme tesisi",
+    bilgiAlanlari: [
+      { key: "tesisAdi", label: "Tesisin Adı", required: true },
+      { key: "adres", label: "Adresi" },
+      { key: "telefon", label: "Telefon / Faks" },
+      { key: "belgeNo", label: "Belge Tarih ve No" },
+      { key: "belgeSahibi", label: "Belge Sahibi / Girişimci" },
+      { key: "denetimNedeni", label: "Denetleme Nedeni" },
+      { key: "denetimTarihi", label: "Denetleme Tarihi", type: "date" },
+      { key: "kapasite", label: "Kapasite (kişi)" },
+      { key: "denetciAdi", label: "Denetçi Adı" }
+    ],
+    mahaller: [
+      { ad: "Gastronomi Niteliği (Y:26-2/a — en az biri sağlanmalı)", maddeler: [
+        { t: "Yazılı/görsel/dijital basında marka bilinirliği veya ün sahibi olması", r: "Y:26-2/a-1, T:9-1" },
+        { t: "(1) numaralı niteliği sağlayan işletmeyle franchise/işletmecilik anlaşması", r: "Y:26-2/a-2, T:9-1" },
+        { t: "Başvuru sahibinin (1) veya (2) niteliğine sahip ayrı bir işletmesinin olması", r: "Y:26-2/a-3, T:9-1" },
+        { t: "Hakim ortağın gastronomi alanında diploma veya MYK mesleki yeterlilik belgesi", r: "Y:26-2/a-4" },
+        { t: "Tesisin yoğun turizm faaliyetleri olan bir bölgede yer alması", r: "Y:26-2/a-5" }
+      ]},
+      { ad: "Lokanta — Yemek Salonu (Y:26-2/b-1)", maddeler: [
+        { t: "En az 50 kişilik yemek salonu (60 m²)", r: "Y:26-2/b-1" },
+        { t: "Salon ile doğrudan bağlantılı mutfak", r: "Y:26-2/b-1" },
+        { t: "Yemek salonu taban döşemesi mevcut arazi seviyesi üzerinde", r: "Y:26-2/b-3" },
+        { t: "En az bir cepheden yeterli doğal aydınlatma", r: "Y:26-2/b-3" },
+        { t: "Yemek salonunda klima sistemi", r: "Y:26-2/b-5" },
+        { t: "Nitelikli tefriş, dekorasyon, donanım ve servis malzemeleri (mutfağa uygun, kaliteli)", r: "Y:26-2/b-6" }
+      ]},
+      { ad: "Lokanta — Mutfak (Y:26-2/b-1)", maddeler: [
+        { t: "Mutfak alanı (min. 25 m²; ≤200 m² salonda salonun %25'i, daha büyük salonlarda min. 50 m²)", r: "Y:26-2/b-1" },
+        { t: "Hazırlama, pişirme, bulaşık bölümleri ve mutfak fonksiyonları", r: "Y:26-2/b-1" },
+        { t: "Salon ve servis ayrı kattaysa servis merdiveni veya monşarj", r: "Y:26-2/b-1" },
+        { t: "İlave salon varsa servis mutfağı (aynı kattaki salonlar için tek mutfak yeterli)", r: "Y:26-2/b-1" },
+        { t: "Malzeme deposu", r: "Y:26-2/b-1" },
+        { t: "Soğuk saklama deposu veya soğuk dolap", r: "Y:26-2/b-1" },
+        { t: "Sunulan yiyecek türlerine uygun hazırlık yerleri", r: "Y:26-2/b-1" },
+        { t: "Izgara, kuzine ve verilen yemek türlerine uygun pişirme donanımı", r: "Y:26-2/b-1" },
+        { t: "Servis takımları için bulaşık makinesi", r: "Y:26-2/b-1" },
+        { t: "Soğuk-sıcak sunuma ilişkin donanım", r: "Y:26-2/b-1" },
+        { t: "Canlı yemek müziği imkânı (çevreyi/müşteriyi rahatsız etmeden)", r: "Y:26-2/b-1" }
+      ]},
+      { ad: "Müşteri Mahalleri (Y:26-2/b-4)", maddeler: [
+        { t: "Kadın ve erkek müşteriler için ayrı tuvalet", r: "Y:26-2/b-4" },
+        { t: "Kadın ve erkek müşteriler için ayrı lavabo", r: "Y:26-2/b-4" }
+      ]},
+      { ad: "Mutfak Şefi (Y:26-2/b-7)", maddeler: [
+        { t: "Mutfak şefinin gastronomi/aşçılık diploması veya MYK mesleki yeterlilik belgesi", r: "Y:26-2/b-7, T:9-1" },
+        { t: "Mutfak şefinin uluslararası ödülü VEYA basında tanınırlık yazısı (alternatif)", r: "Y:26-2/b-7, T:9-1" },
+        { t: "Mutfak şefinin nüfus cüzdanı/pasaport örneği ve istihdam belgesi", r: "T:9-1" },
+        { t: "Yabancı mutfak hizmeti varsa şefin o ülke mutfağında eğitimli olduğuna dair belge", r: "T:9-1" }
+      ]},
+      { ad: "Menü ve Sunum (Y:26-2/b-8..12)", maddeler: [
+        { t: "Menüde içerik, alerjen, vejetaryen/vegan, inanç hassasiyeti bilgileri (Türkçe + en az 1 yabancı dil)", r: "Y:26-2/b-8" },
+        { t: "Yöresel/geleneksel mutfak: en az 5 çeşit yöresel ürün, geleneksel pişirme ve menüde açıklama", r: "Y:26-2/b-9" },
+        { t: "Yabancı mutfak: o mutfağa özgü ürünlerle geleneksel pişirme, sunum, menüde açıklama", r: "Y:26-2/b-10" },
+        { t: "Dünya mutfağı: başlangıç, ara sıcak, ana yemek, tatlıdan en az 3'er adet kaliteli sunum", r: "Y:26-2/b-11" },
+        { t: "Sunulan yiyecek ürünlerinin işletme tarafından hazırlanması", r: "Y:26-2/b-12" }
+      ]},
+      { ad: "Asgari Nitelikler — Genel", maddeler: [
+        { t: "Çevre aydınlatması ve bahçe düzenlemesi", r: "Asgari-1" },
+        { t: "Dış cephe, duvar, kaplama malzemeleri kalitesi (yıpranma/çürüme yok)", r: "Asgari-2" },
+        { t: "Tüm mahallerde doğal veya mekanik havalandırma", r: "Asgari-3" },
+        { t: "Devamlı sıcak ve soğuk su", r: "Asgari-4" },
+        { t: "Jeneratör (kapasite 100 kişi üzerindeyse)", r: "Asgari-5" }
+      ]},
+      { ad: "Asgari Nitelikler — Personel ve Hijyen", maddeler: [
+        { t: "İlkyardım sertifikalı personel", r: "Asgari-6" },
+        { t: "İlkyardım malzemeleri", r: "Asgari-7" },
+        { t: "Personel temiz ve göreve uygun kıyafetli", r: "Asgari-8" },
+        { t: "Periyodik haşere ilaçlama (son fatura)", r: "Asgari-9" },
+        { t: "Yiyecek-içecekler uygun saklama yer ve koşullarında", r: "Asgari-10" },
+        { t: "Müşteri mahallerinde atık ayrıştırma kutuları (kâğıt, cam, plastik)", r: "Asgari-11" }
+      ]},
+      { ad: "Korunması Gerekli Kültür Varlığı (varsa)", maddeler: [
+        { t: "Metrik ölçü ve servis bağlantısında yapı niteliğine göre değerlendirme yapıldı", r: "Y:26-2 son fıkra" }
+      ]}
+    ]
+  }
+  
+  // İleride eklenecek diğer şablonlar buraya:
+  // lokanta_1: { id: "...", baslik: "1. Sınıf Lokanta", ... },
+  // otel: { ... },
+  // pansiyon: { ... }
 };
+
+// Aktif şablonu tutan değişken (denetim açıldığında set edilir)
+let SABLON = SABLONLAR.gastronomi;
 
 // ==================== STORAGE (IndexedDB) ====================
 const DB_NAME = "DenetimDB";
@@ -819,16 +880,17 @@ async function refreshHome() {
   }
   
   list.innerHTML = all.map(d => {
-    const stats = computeStats(d);
+    const stats = computeStatsFor(d);
     const titleText = d.bilgi.tesisAdi || "İsimsiz Tesis";
     const dateText = fmtDate(d.bilgi.denetimTarihi || d.olusturma);
+    const turAdi = (SABLONLAR[d.sablonKey] && SABLONLAR[d.sablonKey].kisaAd) || "—";
     const isComplete = stats.bos === 0;
     const statClass = stats.toplamCevap === 0 ? "stat-neutral" : (stats.pct >= 70 ? "stat-good" : "stat-bad");
     const statText = stats.toplamCevap === 0 ? "—" : "%" + stats.pct;
     return `<div class="denetim-card ${isComplete ? 'completed' : ''}" onclick="openDenetim('${d.id}')">
       <div class="denetim-card-body">
         <div class="denetim-card-title">${escapeHtml(titleText)}</div>
-        <div class="denetim-card-meta">${dateText} · ${stats.toplam} madde · ${stats.yok} eksik</div>
+        <div class="denetim-card-meta">${escapeHtml(turAdi)} · ${dateText} · ${stats.yok} eksik</div>
       </div>
       <div class="denetim-card-stat ${statClass}">${statText}</div>
     </div>`;
@@ -855,17 +917,44 @@ function goHome() {
 
 // ==================== NEW DENETIM ====================
 function newDenetim() {
+  // Önce tür seçim modalını göster
+  showTurModal();
+}
+
+function showTurModal() {
+  const list = document.getElementById("turList");
+  list.innerHTML = Object.keys(SABLONLAR).map(key => {
+    const s = SABLONLAR[key];
+    return `<button class="tur-card" onclick="selectTurAndStart('${key}')">
+      <div class="tur-card-title">${escapeHtml(s.baslik)}</div>
+      <div class="tur-card-desc">${escapeHtml(s.aciklama || '')}</div>
+    </button>`;
+  }).join("");
+  document.getElementById("turModal").classList.add("open");
+}
+
+function closeTurModal() {
+  document.getElementById("turModal").classList.remove("open");
+}
+
+function selectTurAndStart(sablonKey) {
+  if (!SABLONLAR[sablonKey]) { toast("Şablon bulunamadı"); return; }
+  SABLON = SABLONLAR[sablonKey];
+  closeTurModal();
+  
   currentDenetim = {
     id: uid(),
+    sablonKey: sablonKey,
     sablonId: SABLON.id,
     bilgi: {},
-    cevaplar: {}, // { mahalIdx_maddeIdx: { durum: "Var"/"Yok"/"NA", aciklama: "" } }
+    cevaplar: {},
     olusturma: Date.now(),
     guncelleme: Date.now()
   };
-  // Tarih default: bugün
   currentDenetim.bilgi.denetimTarihi = new Date().toISOString().slice(0,10);
   renderInfoForm("infoForm", currentDenetim.bilgi);
+  // Üst başlığı güncelle
+  document.querySelector("#screen-info .appbar h1").textContent = SABLON.baslik + " — Tesis Bilgileri";
   showScreen("screen-info");
 }
 
@@ -905,6 +994,14 @@ async function saveInfoAndStart() {
 async function openDenetim(id) {
   currentDenetim = await getDenetim(id);
   if (!currentDenetim) { toast("Denetim bulunamadı"); return; }
+  // Şablonu doğru yükle (eski kayıtlar için fallback)
+  const key = currentDenetim.sablonKey;
+  if (key && SABLONLAR[key]) {
+    SABLON = SABLONLAR[key];
+  } else {
+    // Eski kayıt veya şablon adı bilinmiyor - varsayılan ilk şablon
+    SABLON = SABLONLAR[Object.keys(SABLONLAR)[0]];
+  }
   renderDenetim();
   showScreen("screen-denetim");
 }
@@ -1000,8 +1097,14 @@ function setAciklama(key, val) {
 }
 
 function computeStats(d) {
+  return computeStatsFor(d);
+}
+
+function computeStatsFor(d) {
+  // Denetimin kendi şablonunu kullan (ana ekran için kritik)
+  const sablon = (d.sablonKey && SABLONLAR[d.sablonKey]) ? SABLONLAR[d.sablonKey] : SABLON;
   let toplam = 0, varSay = 0, yokSay = 0, naSay = 0;
-  SABLON.mahaller.forEach((mahal, mi) => {
+  sablon.mahaller.forEach((mahal, mi) => {
     mahal.maddeler.forEach((m, midx) => {
       toplam++;
       const c = d.cevaplar[`${mi}_${midx}`];
@@ -1011,7 +1114,7 @@ function computeStats(d) {
     });
   });
   const bos = toplam - varSay - yokSay - naSay;
-  const denominator = varSay + yokSay; // NA hariç
+  const denominator = varSay + yokSay;
   const pct = denominator > 0 ? Math.round((varSay / denominator) * 100) : 0;
   return { toplam, var: varSay, yok: yokSay, na: naSay, bos, pct, toplamCevap: varSay + yokSay + naSay };
 }
@@ -1427,16 +1530,19 @@ function startMic(key) {
   };
   
   rec.onresult = (event) => {
+    // GÜVENLI YAKLAŞIM: her seferinde tüm sonuçları sıfırdan oku.
+    // Bu, tarayıcının sonuçları tekrar göndermesi durumunda bile dublikasyona yol açmaz.
+    let allFinal = "";
     let interim = "";
-    for (let i = event.resultIndex; i < event.results.length; i++) {
+    for (let i = 0; i < event.results.length; i++) {
       const transcript = event.results[i][0].transcript;
       if (event.results[i].isFinal) {
-        finalTranscript += (finalTranscript ? " " : "") + transcript.trim();
+        allFinal += (allFinal ? " " : "") + transcript.trim();
       } else {
         interim += transcript;
       }
     }
-    // Mevcut metin + final + (interim italic gösteremiyoruz textarea'da; düz ekleyelim)
+    finalTranscript = allFinal; // tamamen yeniden ata
     const combined = combineText(baseTextBeforeRecording, finalTranscript, interim);
     txt.value = combined;
     if (interim) setHint(key, "… " + interim.trim().slice(-40), false, true);
