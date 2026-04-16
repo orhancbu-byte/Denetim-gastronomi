@@ -108,6 +108,12 @@ html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink);
 .denetim-card:active { background: var(--line-soft); }
 .denetim-card.completed { border-left-color: var(--ok); }
 .denetim-card-body { flex: 1; min-width: 0; }
+.denetim-card-delete { background: transparent; border: none; color: var(--muted);
+  font-size: 20px; padding: 8px 10px; cursor: pointer; border-radius: 6px;
+  line-height: 1; transition: all 0.15s;
+}
+.denetim-card-delete:active { background: var(--no-bg); color: var(--no); }
+.denetim-card-delete:hover { color: var(--no); }
 .denetim-card-title { font-family: 'Fraunces', serif; font-weight: 600; font-size: 16px;
   margin: 0 0 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
@@ -409,7 +415,8 @@ html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink);
   <div class="appbar">
     <button class="back-btn" onclick="goHome()">← Kaydet & Çık</button>
     <h1 id="denetimTitle">Denetim</h1>
-    <button class="icon-btn" onclick="editInfo()">✎</button>
+    <button class="icon-btn" onclick="editInfo()" title="Düzenle">✎</button>
+    <button class="icon-btn" onclick="confirmDeleteCurrent()" title="Sil" style="border-color:rgba(255,180,180,0.4);">🗑️</button>
   </div>
   <div class="summary-bar">
     <div class="sum-pill sum-ok"><span class="num" id="sumOk">0</span><span class="lbl">Uygun</span></div>
@@ -446,6 +453,18 @@ html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink);
     <div class="modal-actions">
       <button class="btn-primary" onclick="saveInfoFromModal()">Kaydet</button>
       <button class="btn-secondary" onclick="closeInfoModal()">İptal</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="deleteConfirmModal">
+  <div class="modal">
+    <h3 style="color: var(--no);">⚠️ Denetim Silinecek</h3>
+    <p style="margin: 0 0 8px;"><strong id="deleteConfirmName"></strong> adlı denetim silinecek.</p>
+    <p style="color: var(--ink-soft); font-size: 14px; margin: 0;">Bu işlem geri alınamaz. Tüm cevaplar, açıklamalar ve fotoğraflar silinecek. Devam edilsin mi?</p>
+    <div class="modal-actions">
+      <button class="btn-primary" style="background: var(--no);" onclick="executeDeleteDenetim()">🗑️ Evet, Sil</button>
+      <button class="btn-secondary" onclick="closeDeleteConfirm()">İptal</button>
     </div>
   </div>
 </div>
@@ -707,9 +726,555 @@ const SABLONLAR = [
   
   // === DİĞER TESİS TÜRLERİ — İSKELET (henüz hazır değil) ===
   { id: "otel_5", ad: "5 Yıldızlı Otel", aciklama: "Madde 19/6", ikon: "⭐", hazir: false, bilgiAlanlari: [], bolumler: [] },
-  { id: "otel_4", ad: "4 Yıldızlı Otel", aciklama: "Madde 19/5", ikon: "⭐", hazir: false, bilgiAlanlari: [], bolumler: [] },
-  { id: "otel_3", ad: "3 Yıldızlı Otel", aciklama: "Madde 19/4", ikon: "⭐", hazir: false, bilgiAlanlari: [], bolumler: [] },
-  { id: "otel_2", ad: "2 Yıldızlı Otel", aciklama: "Madde 19/3", ikon: "⭐", hazir: false, bilgiAlanlari: [], bolumler: [] },
+  { id: "otel_4", ad: "4 Yıldızlı Otel", aciklama: "Madde 19/5 — 3 yıldız niteliklerine ek olarak lokanta, bagaj odası, kuru temizleme, eğitimli personel ve tüm illerde klima bulunan otel", ikon: "⭐", hazir: true,
+    bilgiAlanlari: [
+      { key: "tesisAdi", label: "Tesisin Adı", required: true },
+      { key: "adres", label: "Adresi" },
+      { key: "telefon", label: "Telefon / Faks" },
+      { key: "belgeNo", label: "Belge Tarih ve No" },
+      { key: "belgeSahibi", label: "Belge Sahibi / Girişimci" },
+      { key: "denetimNedeni", label: "Denetleme Nedeni" },
+      { key: "denetimTarihi", label: "Denetleme Tarihi", type: "date", required: true },
+      { key: "odaSayisi", label: "Oda Sayısı", type: "number" },
+      { key: "yatakKapasitesi", label: "Yatak Kapasitesi", type: "number" },
+      { key: "kontrolorAdi", label: "Kontrolör Adı" }
+    ],
+    bolumler: [
+      {
+        id: "o4_genel",
+        ad: "Bölüm 1 — Genel Asgari Nitelikler",
+        altbaslik: "Tüm turizm tesislerine ortak (Madde 13-17)",
+        gruplar: [
+          {
+            id: "o4g_yerlesme", ad: "Yerleşme ve Yapı (M.13)", tip: "normal",
+            maddeler: [
+              { id: "o4g13_1", t: "Mahaller kullanım amacına uygun ölçülerde mi?", r: "M.13/1", cevapTip: "evet_hayir" },
+              { id: "o4g13_2", t: "Tefriş ve donanım elemanları kaliteli ve nitelikli mi?", r: "M.13/1", cevapTip: "evet_hayir" },
+              { id: "o4g13_3", t: "Dış cephe, iç duvar, zemin, tavan, çatı kaplamaları bakımlı ve nitelikli mi?", r: "M.13/1", cevapTip: "evet_hayir" },
+              { id: "o4g13_4", t: "Yapının tamamı belge kapsamında değilse, kapsam dışı yerler belgeli kısımdan ayrılmış mı?", r: "M.13/2", cevapTip: "evet_hayir" },
+              { id: "o4g13_5", t: "Bahçe varsa: özenle düzenlenmiş, aydınlatılmış ve bakımı sürekli sağlanıyor mu?", r: "M.13/6", cevapTip: "evet_hayir" },
+              { id: "o4g13_6", t: "Çevre aydınlatması mevcut mu?", r: "M.13/7", cevapTip: "evet_hayir" },
+              { id: "o4g13_7", t: "Farklı parsellerdeki üniteler arasında hizmet birliği ve fonksiyonel bağlantı sağlanmış mı?", r: "M.13/3", cevapTip: "evet_hayir",
+                kosulNot: "Farklı parselde ünite yoksa Uygulanmaz seçin" }
+            ]
+          },
+          {
+            id: "o4g_tuvalet", ad: "Genel Tuvaletler (M.14/2)", tip: "normal",
+            maddeler: [
+              { id: "o4g_tuv_e", t: "Genel mahallere hizmet veren erkek tuvalet ve lavabo var mı?", r: "M.14/2", cevapTip: "evet_hayir" },
+              { id: "o4g_tuv_k", t: "Genel mahallere hizmet veren kadın tuvalet ve lavabo var mı?", r: "M.14/2", cevapTip: "evet_hayir" }
+            ]
+          },
+          {
+            id: "o4g_mahaller", ad: "Mahallerin Düzenlenmesi (M.14)", tip: "normal",
+            maddeler: [
+              { id: "o4g14_1", t: "Isıtma merkezi sistem veya klima ile sağlanıyor mu?", r: "M.14/3", cevapTip: "evet_hayir" },
+              { id: "o4g14_2", t: "Tüm mekanlarda yeterli doğal veya mekanik havalandırma var mı?", r: "M.14/3", cevapTip: "evet_hayir" },
+              { id: "o4g14_3", t: "Devamlı sıcak ve soğuk su mevcut mu?", r: "M.14/3", cevapTip: "evet_hayir" },
+              { id: "o4g14_4", t: "Jeneratör mevcut mu? (kapasite 100 kişi/yatak üzerindeyse zorunlu)", r: "M.14/4", cevapTip: "var_yok_na",
+                kosulNot: "Kapasite 100 altındaysa Uygulanmaz seçin" }
+            ]
+          },
+          {
+            id: "o4g_personel", ad: "Personel Mahalleri (M.15) — 4 Yıldızda Zorunlu", tip: "normal",
+            maddeler: [
+              { id: "o4g15_1", t: "Personel için kadın-erkek ayrı soyunma yerleri, dolapları var mı?", r: "M.15/2", cevapTip: "evet_hayir",
+                kosulNot: "4 yıldızlı otellerde oda sayısına bakılmaksızın zorunludur" },
+              { id: "o4g15_2", t: "Personel için kadın-erkek ayrı duş ve tuvaletler var mı?", r: "M.15/2", cevapTip: "evet_hayir" },
+              { id: "o4g15_3", t: "60 oda üzeri: Personelin ortak oturma, dinlenme ve yemek mahalli var mı?", r: "M.15/2", cevapTip: "var_yok_na",
+                kosulNot: "60 oda altındaysa Uygulanmaz seçin" },
+              { id: "o4g15_4", t: "Personel görev mahallerine uygun, özel ve temiz kıyafetli mi?", r: "M.15/4", cevapTip: "evet_hayir" },
+              { id: "o4g15_5", t: "İlk yardım konusunda sertifikalı personel mevcut mu?", r: "M.15/5", cevapTip: "evet_hayir" }
+            ]
+          },
+          {
+            id: "o4g_saglik", ad: "Sağlık, Temizlik, Güvenlik, Çevre (M.17)", tip: "normal",
+            maddeler: [
+              { id: "o4g17_1", t: "Hijyen ve sağlık kurallarına uyuluyor mu?", r: "M.17/1", cevapTip: "evet_hayir" },
+              { id: "o4g17_2", t: "İlkyardım malzemeleri bulunduruluyor mu?", r: "M.17/2", cevapTip: "evet_hayir" },
+              { id: "o4g17_3", t: "Düzenli temizlik ve bakım sağlanıyor mu?", r: "M.17/3", cevapTip: "evet_hayir" },
+              { id: "o4g17_4", t: "Periyodik haşere mücadelesi yapılıyor mu? (son fatura/sözleşme)", r: "M.17/3", cevapTip: "evet_hayir" },
+              { id: "o4g17_5", t: "Geri dönüşüm kutuları mevcut mu?", r: "M.17/4", cevapTip: "evet_hayir" },
+              { id: "o4g17_6", t: "Çöplerin muhafazası uygun mu?", r: "M.17/4", cevapTip: "evet_hayir" },
+              { id: "o4g17_7", t: "Güvenlik önlemleri (elektronik ve fiziki) alınmış mı?", r: "M.17/5", cevapTip: "evet_hayir" },
+              { id: "o4g17_8", t: "Tesisat, elektrik ve mekanik donanım standartlara uygun ve bakımlı mı?", r: "M.17/5", cevapTip: "evet_hayir" }
+            ]
+          },
+          {
+            id: "o4g_tanitim", ad: "Tanıtım ve Bilgilendirme (M.16)", tip: "normal",
+            maddeler: [
+              { id: "o4g16_1", t: "Bakanlık plaketi tesis girişinde görünür yerde mi?", r: "M.16/1", cevapTip: "evet_hayir" },
+              { id: "o4g16_2", t: "Tanıtım belgeye uygun mu? Yanıltıcı bilgi içermiyor mu?", r: "M.16/2", cevapTip: "evet_hayir" },
+              { id: "o4g16_3", t: "Tesis isminde kapasitede yer almayan ünitelere ilişkin terim kullanılıyor mu?", r: "M.16/3", cevapTip: "evet_hayir",
+                kosulNot: "Hayır olması gerekir" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "o4_konaklama",
+        ad: "Bölüm 2 — Konaklama Tesisi Asgari Nitelikleri",
+        altbaslik: "Madde 18 — Konaklama tesislerinin asgari nitelikleri",
+        gruplar: [
+          {
+            id: "o4k_genel", ad: "Genel Konaklama (M.18, M.19/5)", tip: "normal",
+            maddeler: [
+              { id: "o4k_oda", t: "Oda sayısı kaç?", r: "M.19/5", cevapTip: "sayi", unit: "adet",
+                kural: { tip: "sayi_min", min: 10, mesaj: "4 yıldızlı otellerde en az 10 oda zorunludur (M.19/5)" } },
+              { id: "o4k_oda_m2", t: "Odalar banyo dahil en az 20 m² mi?", r: "M.18/1-a/2", cevapTip: "evet_hayir",
+                kosulNot: "4 yıldızlı otellerde odalar banyo dahil en az 20 m² olmalı" }
+            ]
+          },
+          {
+            id: "o4k_yatak", ad: "Yatak Odaları (M.18/1-a)", tip: "normal",
+            maddeler: [
+              { id: "o4k18_isik", t: "Yatak odaları doğal ışık alacak şekilde düzenlenmiş mi?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o4k18_banyo", t: "Yatak odaları banyolu mu?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o4k18_yatak", t: "Odalarda yatak, yastık, yastık kılıfı, nevresim, pike/yorgan var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o4k18_perde", t: "Odalarda tül perde ve kalın perde (veya benzeri düzenleme) var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o4k18_aydinlatma", t: "Odalarda genel aydınlatma, gece lambası ve priz var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o4k18_sehpa", t: "Yatak başucu sehpası veya benzeri düzenleme var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o4k18_dolap", t: "Elbise dolabı veya benzeri düzenleme var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o4k18_cop", t: "Odalarda çöp kutusu var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o4k18_zemin", t: "Nitelikli zemin kaplaması var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o4k18_kilit", t: "Oda kapılarında elektronik kilit veya ilave kilit sistemi var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o4k18_dedektor", t: "Odalarda duman dedektörü var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o4k18_telefon", t: "Odalarda telefon var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o4k18_klima", t: "Odalarda klima var mı? (4 yıldızda tüm illerde zorunlu)", r: "M.19/5-d", cevapTip: "evet_hayir",
+                kosulNot: "4 yıldızlı otellerde tüm illerde klima zorunludur" },
+              { id: "o4k18_mutfak_yok", t: "Yatak odalarında mutfak veya mutfak nişi düzenlemesi yapılmamış mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir",
+                kosulNot: "Evet olması gerekir" }
+            ]
+          },
+          {
+            id: "o4k_banyo", ad: "Banyo (M.18/1-a)", tip: "normal",
+            maddeler: [
+              { id: "o4k18_b_su", t: "Banyolarda suyun yayılımını engelleyici önlemler alınmış mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o4k18_b_vitrifiye", t: "Banyolarda vitrifiye, armatür, batarya, duş donanımı var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o4k18_b_ayna", t: "Banyolarda ayna var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o4k18_b_priz", t: "Banyolarda priz var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o4k18_b_cop", t: "Banyolarda çöp kutusu var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o4k18_b_sabun", t: "Banyolarda sabun ve şampuan var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o4k18_b_havlu", t: "Banyolarda el, banyo ve ayak havlusu (3 havlu) var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" }
+            ]
+          },
+          {
+            id: "o4k_diger", ad: "Diğer Konaklama Nitelikleri (M.18)", tip: "normal",
+            maddeler: [
+              { id: "o4k_asansor", t: "Müşteri asansörü gerekli mi ve var mı? (2 kattan fazla inilip çıkılıyorsa zorunlu)", r: "M.18/1-c", cevapTip: "var_yok_na",
+                kosulNot: "4 yıldızlı otellerde 2 kattan fazla inilip çıkılıyorsa zorunlu. 2 kat veya altındaysa Uygulanmaz seçin." },
+              { id: "o4k_asansor_alarm", t: "Asansör varsa: alarm tertibatı ve havalandırma düzeneği var mı?", r: "M.18/1-c", cevapTip: "var_yok_na",
+                kosulNot: "Asansör yoksa Uygulanmaz seçin" },
+              { id: "o4k_yangin", t: "Yangın merdiveni düzenlemesi var mı?", r: "Genel", cevapTip: "var_yok_na" },
+              { id: "o4k_taban", t: "Yatak odaları mevcut arazi seviyesinin altında kalmıyor mu?", r: "M.18/1-a/5", cevapTip: "evet_hayir",
+                kosulNot: "Evet olması gerekir — bodrum katta oda olamaz" },
+              { id: "o4k_engelli", t: "Engelli düzenlemesi yapılmış mı? (4 yıldızda zorunlu)", r: "M.18/1-b", cevapTip: "evet_hayir",
+                kosulNot: "4 yıldızlı otellerde oda sayısına bakılmaksızın zorunludur" },
+              { id: "o4k_havuz_asansor", t: "Havuz varsa: havuz asansörü düzenlemesi var mı?", r: "M.18/1-b", cevapTip: "var_yok_na",
+                kosulNot: "Havuz yoksa Uygulanmaz seçin" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "o4_ozel",
+        ad: "Bölüm 3 — 4 Yıldızlı Otel Özel Nitelikleri",
+        altbaslik: "Madde 19/5 — 3 yıldız niteliklerine ilave olarak",
+        gruplar: [
+          {
+            id: "o4o_3yildiz", ad: "3 Yıldızdan Devralan Şartlar", tip: "normal",
+            maddeler: [
+              { id: "o4o_resepsiyon", t: "Resepsiyon ve bekleme bölümünden oluşan lobi var mı?", r: "M.19/2-b", cevapTip: "evet_hayir" },
+              { id: "o4o_oturma", t: "Oturma alanı ve sıcak-soğuk içecek hizmeti var mı?", r: "M.19/2-c", cevapTip: "evet_hayir" },
+              { id: "o4o_yonetim1", t: "1. yönetim odası var mı?", r: "M.19/3-b", cevapTip: "evet_hayir" },
+              { id: "o4o_tv", t: "Odalarda televizyon var mı?", r: "M.19/3-c", cevapTip: "evet_hayir" },
+              { id: "o4o_sac", t: "Odalarda saç kurutma makinesi var mı?", r: "M.19/3-ç", cevapTip: "evet_hayir" },
+              { id: "o4o_kahvalti", t: "Kahvaltı salonu var mı?", r: "M.19/4-a", cevapTip: "evet_hayir",
+                kosulNot: "Yeterli oturma alanı + servis mutfağı veya lokanta da bu amaçla kullanılabilir" },
+              { id: "o4o_sandalye", t: "Odalarda en az bir sandalye veya koltuk ve valizlik var mı?", r: "M.19/4-c", cevapTip: "evet_hayir" },
+              { id: "o4o_kasa", t: "Odalarda kıymetli eşya kasası var mı?", r: "M.19/4-ç", cevapTip: "evet_hayir" },
+              { id: "o4o_internet_genel", t: "Genel mahallerde internet hizmeti var mı?", r: "M.19/4-d", cevapTip: "evet_hayir" },
+              { id: "o4o_camasir", t: "Çamaşır yıkama-ütüleme hizmeti + çamaşır torbası ve fiyat listesi var mı?", r: "M.19/4-e", cevapTip: "evet_hayir" },
+              { id: "o4o_ruzgarlik", t: "Girişte rüzgarlık, hava perdesi, döner kapı veya benzeri düzenleme var mı?", r: "M.19/4-f", cevapTip: "evet_hayir" }
+            ]
+          },
+          {
+            id: "o4o_yeni", ad: "4 Yıldıza Özel Yeni Şartlar (M.19/5)", tip: "normal",
+            maddeler: [
+              { id: "o4o_yonetim2", t: "2. yönetim odası var mı? (ilave bir yönetim odası)", r: "M.19/5-a", cevapTip: "evet_hayir",
+                kosulNot: "4 yıldızda en az 2 yönetim odası zorunlu" },
+              { id: "o4o_lokanta", t: "Tesis yatak kapasitesinin aynı anda en az %30'una hizmet veren lokanta var mı?", r: "M.19/5-b", cevapTip: "evet_hayir" },
+              { id: "o4o_kat_ofis", t: "Yatak katlarında kat hizmetleri ofisi var mı?", r: "M.19/5-c", cevapTip: "evet_hayir",
+                kosulNot: "Ayrık, yaygın ve az katlı yerleşimlerde hizmet aksamaması kaydıyla her katta bulunması zorunlu değildir" },
+              { id: "o4o_bagaj_odasi", t: "Bagaj odası var mı?", r: "M.19/5-ç", cevapTip: "evet_hayir" },
+              { id: "o4o_emanet", t: "Bagaj odasında emanet hizmeti veriliyor mu?", r: "M.19/5-ç", cevapTip: "evet_hayir" },
+              { id: "o4o_bagaj_tasima", t: "Bagaj taşıma hizmeti var mı?", r: "M.19/5-ç", cevapTip: "evet_hayir" },
+              { id: "o4o_klima_oda_genel", t: "Odalarda ve genel mahallerde klima var mı?", r: "M.19/5-d", cevapTip: "evet_hayir",
+                kosulNot: "4 yıldızda tüm illerde zorunlu" },
+              { id: "o4o_internet_oda", t: "Odalarda internet hizmeti var mı?", r: "M.19/5-d", cevapTip: "evet_hayir" },
+              { id: "o4o_buklet", t: "Odalarda ve banyolarda en az 10 çeşit buklet malzemesi var mı?", r: "M.19/5-e", cevapTip: "evet_hayir",
+                kosulNot: "Bornoz, diş temizlik kiti, tıraş kiti, törpü, cımbız, tırnak makası, tek kullanımlık terlik, dikiş kiti, ayakkabı sileceği, ayakkabı cilası, duş bonesi, duş köpüğü, duş jeli, vücut losyonu, saç kremi, makyaj temizleme pamuğu, kulak temizliği pamuğu, hijyen poşeti, kutu kağıt mendil, bloknot-kalem, uyku gözlüğü, şemsiye vb." },
+              { id: "o4o_kuru_temizleme", t: "Kuru temizleme hizmeti ve fiyat listesi var mı?", r: "M.19/5-f", cevapTip: "evet_hayir" },
+              { id: "o4o_personel_oran", t: "Toplam personelin en az %15'i konusunda eğitim almış veya sertifikalı mı?", r: "M.19/5-g", cevapTip: "evet_hayir" },
+              { id: "o4o_idari", t: "İdari personel eğitimli mi ve en az 5 yıl deneyimli mi?", r: "M.19/5-ğ", cevapTip: "evet_hayir" }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  { id: "otel_3", ad: "3 Yıldızlı Otel", aciklama: "Madde 19/4 — 2 yıldız niteliklerine ek olarak kahvaltı salonu, internet, klima, valizlik, kasa ve çamaşır hizmeti bulunan otel", ikon: "⭐", hazir: true,
+    bilgiAlanlari: [
+      { key: "tesisAdi", label: "Tesisin Adı", required: true },
+      { key: "adres", label: "Adresi" },
+      { key: "telefon", label: "Telefon / Faks" },
+      { key: "belgeNo", label: "Belge Tarih ve No" },
+      { key: "belgeSahibi", label: "Belge Sahibi / Girişimci" },
+      { key: "denetimNedeni", label: "Denetleme Nedeni" },
+      { key: "denetimTarihi", label: "Denetleme Tarihi", type: "date", required: true },
+      { key: "odaSayisi", label: "Oda Sayısı", type: "number" },
+      { key: "yatakKapasitesi", label: "Yatak Kapasitesi", type: "number" },
+      { key: "kontrolorAdi", label: "Kontrolör Adı" }
+    ],
+    bolumler: [
+      {
+        id: "o3_genel",
+        ad: "Bölüm 1 — Genel Asgari Nitelikler",
+        altbaslik: "Tüm turizm tesislerine ortak (Madde 13-17)",
+        gruplar: [
+          {
+            id: "o3g_yerlesme", ad: "Yerleşme ve Yapı (M.13)", tip: "normal",
+            maddeler: [
+              { id: "o3g13_1", t: "Mahaller kullanım amacına uygun ölçülerde mi?", r: "M.13/1", cevapTip: "evet_hayir" },
+              { id: "o3g13_2", t: "Tefriş ve donanım elemanları kaliteli ve nitelikli mi?", r: "M.13/1", cevapTip: "evet_hayir" },
+              { id: "o3g13_3", t: "Dış cephe, iç duvar, zemin, tavan, çatı kaplamaları bakımlı ve nitelikli mi?", r: "M.13/1", cevapTip: "evet_hayir" },
+              { id: "o3g13_4", t: "Yapının tamamı belge kapsamında değilse, kapsam dışı yerler belgeli kısımdan ayrılmış mı?", r: "M.13/2", cevapTip: "evet_hayir" },
+              { id: "o3g13_5", t: "Bahçe varsa: özenle düzenlenmiş, aydınlatılmış ve bakımı sürekli sağlanıyor mu?", r: "M.13/6", cevapTip: "evet_hayir" },
+              { id: "o3g13_6", t: "Çevre aydınlatması mevcut mu?", r: "M.13/7", cevapTip: "evet_hayir" },
+              { id: "o3g13_7", t: "Farklı parsellerdeki üniteler arasında hizmet birliği ve fonksiyonel bağlantı sağlanmış mı?", r: "M.13/3", cevapTip: "evet_hayir",
+                kosulNot: "Farklı parselde ünite yoksa Uygulanmaz seçin" }
+            ]
+          },
+          {
+            id: "o3g_tuvalet", ad: "Genel Tuvaletler (M.14/2) — 3 yıldızda zorunlu", tip: "normal",
+            maddeler: [
+              { id: "o3g_tuv_e", t: "Genel mahallere hizmet veren erkek tuvalet ve lavabo var mı?", r: "M.14/2", cevapTip: "evet_hayir" },
+              { id: "o3g_tuv_k", t: "Genel mahallere hizmet veren kadın tuvalet ve lavabo var mı?", r: "M.14/2", cevapTip: "evet_hayir" }
+            ]
+          },
+          {
+            id: "o3g_mahaller", ad: "Mahallerin Düzenlenmesi (M.14)", tip: "normal",
+            maddeler: [
+              { id: "o3g14_1", t: "Isıtma merkezi sistem veya klima ile sağlanıyor mu?", r: "M.14/3", cevapTip: "evet_hayir" },
+              { id: "o3g14_2", t: "Tüm mekanlarda yeterli doğal veya mekanik havalandırma var mı?", r: "M.14/3", cevapTip: "evet_hayir" },
+              { id: "o3g14_3", t: "Devamlı sıcak ve soğuk su mevcut mu?", r: "M.14/3", cevapTip: "evet_hayir" },
+              { id: "o3g14_4", t: "Jeneratör mevcut mu? (kapasite 100 kişi/yatak üzerindeyse zorunlu)", r: "M.14/4", cevapTip: "var_yok_na",
+                kosulNot: "Kapasite 100 altındaysa Uygulanmaz seçin" }
+            ]
+          },
+          {
+            id: "o3g_personel", ad: "Personel Mahalleri (M.15)", tip: "normal",
+            maddeler: [
+              { id: "o3g15_1", t: "20 oda üzeri: Personel için bay/bayan ayrı soyunma yeri, dolap, duş ve tuvalet var mı?", r: "M.15/2", cevapTip: "evet_hayir",
+                kosulNot: "20 oda altındaysa aşağıdaki maddeye bakın" },
+              { id: "o3g15_2", t: "20 oda altı: Personel için soyunma, tuvalet ve lavabo var mı? (kadın-erkek ortak olabilir)", r: "M.15/2", cevapTip: "evet_hayir",
+                kosulNot: "20 oda ve üzerindeyse yukarıdaki maddeye bakın" },
+              { id: "o3g15_3", t: "60 oda üzeri: Personelin ortak oturma, dinlenme ve yemek mahalli var mı?", r: "M.15/2", cevapTip: "var_yok_na",
+                kosulNot: "60 oda altındaysa Uygulanmaz seçin" },
+              { id: "o3g15_4", t: "Personel görev mahallerine uygun, özel ve temiz kıyafetli mi?", r: "M.15/4", cevapTip: "evet_hayir" },
+              { id: "o3g15_5", t: "İlk yardım konusunda sertifikalı personel mevcut mu?", r: "M.15/5", cevapTip: "evet_hayir" }
+            ]
+          },
+          {
+            id: "o3g_saglik", ad: "Sağlık, Temizlik, Güvenlik, Çevre (M.17)", tip: "normal",
+            maddeler: [
+              { id: "o3g17_1", t: "Hijyen ve sağlık kurallarına uyuluyor mu?", r: "M.17/1", cevapTip: "evet_hayir" },
+              { id: "o3g17_2", t: "İlkyardım malzemeleri bulunduruluyor mu?", r: "M.17/2", cevapTip: "evet_hayir" },
+              { id: "o3g17_3", t: "Düzenli temizlik ve bakım sağlanıyor mu?", r: "M.17/3", cevapTip: "evet_hayir" },
+              { id: "o3g17_4", t: "Periyodik haşere mücadelesi yapılıyor mu? (son fatura/sözleşme)", r: "M.17/3", cevapTip: "evet_hayir" },
+              { id: "o3g17_5", t: "Geri dönüşüm kutuları mevcut mu?", r: "M.17/4", cevapTip: "evet_hayir" },
+              { id: "o3g17_6", t: "Çöplerin muhafazası uygun mu?", r: "M.17/4", cevapTip: "evet_hayir" },
+              { id: "o3g17_7", t: "Güvenlik önlemleri (elektronik ve fiziki) alınmış mı?", r: "M.17/5", cevapTip: "evet_hayir" },
+              { id: "o3g17_8", t: "Tesisat, elektrik ve mekanik donanım standartlara uygun ve bakımlı mı?", r: "M.17/5", cevapTip: "evet_hayir" }
+            ]
+          },
+          {
+            id: "o3g_tanitim", ad: "Tanıtım ve Bilgilendirme (M.16)", tip: "normal",
+            maddeler: [
+              { id: "o3g16_1", t: "Bakanlık plaketi tesis girişinde görünür yerde mi?", r: "M.16/1", cevapTip: "evet_hayir" },
+              { id: "o3g16_2", t: "Tanıtım belgeye uygun mu? Yanıltıcı bilgi içermiyor mu?", r: "M.16/2", cevapTip: "evet_hayir" },
+              { id: "o3g16_3", t: "Tesis isminde kapasitede yer almayan ünitelere ilişkin terim kullanılıyor mu?", r: "M.16/3", cevapTip: "evet_hayir",
+                kosulNot: "Hayır olması gerekir — terim kullanılmamalıdır" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "o3_konaklama",
+        ad: "Bölüm 2 — Konaklama Tesisi Asgari Nitelikleri",
+        altbaslik: "Madde 18 — Konaklama tesislerinin asgari nitelikleri",
+        gruplar: [
+          {
+            id: "o3k_genel", ad: "Genel Konaklama (M.18, M.19/4)", tip: "normal",
+            maddeler: [
+              { id: "o3k_oda", t: "Oda sayısı kaç?", r: "M.19/4", cevapTip: "sayi", unit: "adet",
+                kural: { tip: "sayi_min", min: 10, mesaj: "3 yıldızlı otellerde en az 10 oda zorunludur (M.19/4)" } }
+            ]
+          },
+          {
+            id: "o3k_yatak", ad: "Yatak Odaları (M.18/1-a)", tip: "normal",
+            maddeler: [
+              { id: "o3k18_isik", t: "Yatak odaları doğal ışık alacak şekilde düzenlenmiş mi?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o3k18_banyo", t: "Yatak odaları banyolu mu?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o3k18_yatak", t: "Odalarda yatak, yastık, yastık kılıfı, nevresim, pike/yorgan var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o3k18_perde", t: "Odalarda tül perde ve kalın perde (veya benzeri düzenleme) var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o3k18_aydinlatma", t: "Odalarda genel aydınlatma, gece lambası ve priz var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o3k18_sehpa", t: "Yatak başucu sehpası veya benzeri düzenleme var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o3k18_dolap", t: "Elbise dolabı veya benzeri düzenleme var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o3k18_cop", t: "Odalarda çöp kutusu var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o3k18_zemin", t: "Nitelikli zemin kaplaması var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o3k18_kilit", t: "Oda kapılarında elektronik kilit veya ilave kilit sistemi var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o3k18_dedektor", t: "Odalarda duman dedektörü var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o3k18_telefon", t: "Odalarda telefon var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o3k18_klima", t: "Odalarda iklim koşullarına göre klima var mı?", r: "M.18/1-a/1", cevapTip: "var_yok_na",
+                kosulNot: "Klima şartı olan illerde zorunludur, diğerlerinde Uygulanmaz seçin" },
+              { id: "o3k18_mutfak_yok", t: "Yatak odalarında mutfak veya mutfak nişi düzenlemesi yapılmamış mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir",
+                kosulNot: "Evet olması gerekir — yatak odalarında mutfak nişi düzenlenmez" }
+            ]
+          },
+          {
+            id: "o3k_banyo", ad: "Banyo (M.18/1-a)", tip: "normal",
+            maddeler: [
+              { id: "o3k18_b_su", t: "Banyolarda suyun yayılımını engelleyici önlemler alınmış mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o3k18_b_vitrifiye", t: "Banyolarda vitrifiye, armatür, batarya, duş donanımı var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o3k18_b_ayna", t: "Banyolarda ayna var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o3k18_b_priz", t: "Banyolarda priz var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o3k18_b_cop", t: "Banyolarda çöp kutusu var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o3k18_b_sabun", t: "Banyolarda sabun ve şampuan var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o3k18_b_havlu", t: "Banyolarda el, banyo ve ayak havlusu (3 havlu) var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" }
+            ]
+          },
+          {
+            id: "o3k_diger", ad: "Diğer Konaklama Nitelikleri (M.18)", tip: "normal",
+            maddeler: [
+              { id: "o3k_asansor", t: "Müşteri asansörü gerekli mi ve var mı? (3 kattan fazla inilip çıkılıyorsa zorunlu)", r: "M.18/1-c", cevapTip: "var_yok_na",
+                kosulNot: "3 kat veya altındaysa Uygulanmaz seçin. Korunması gerekli taşınmazlarda zorunlu değildir." },
+              { id: "o3k_asansor_alarm", t: "Asansör varsa: alarm tertibatı ve havalandırma düzeneği var mı?", r: "M.18/1-c", cevapTip: "var_yok_na",
+                kosulNot: "Asansör yoksa Uygulanmaz seçin" },
+              { id: "o3k_yangin", t: "Yangın merdiveni düzenlemesi var mı?", r: "Genel", cevapTip: "var_yok_na" },
+              { id: "o3k_taban", t: "Yatak odaları mevcut arazi seviyesinin altında kalmıyor mu?", r: "M.18/1-a/5", cevapTip: "evet_hayir",
+                kosulNot: "Evet olması gerekir — bodrum katta oda olamaz" },
+              { id: "o3k_engelli", t: "Engelli düzenlemesi yapılmış mı? (80 oda üzeri tesislerde zorunlu)", r: "M.18/1-b", cevapTip: "var_yok_na",
+                kosulNot: "80 oda altındaysa Uygulanmaz seçin" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "o3_ozel",
+        ad: "Bölüm 3 — 3 Yıldızlı Otel Özel Nitelikleri",
+        altbaslik: "Madde 19/4 — 2 yıldız niteliklerine ilave olarak",
+        gruplar: [
+          {
+            id: "o3o_2yildiz", ad: "2 Yıldızdan Devralan Şartlar", tip: "normal",
+            maddeler: [
+              { id: "o3o_resepsiyon", t: "Resepsiyon ve bekleme bölümünden oluşan lobi var mı?", r: "M.19/2-b", cevapTip: "evet_hayir" },
+              { id: "o3o_oturma", t: "Oturma alanı ve sıcak-soğuk içecek hizmeti var mı?", r: "M.19/2-c", cevapTip: "evet_hayir" },
+              { id: "o3o_yonetim", t: "Yönetim odası var mı?", r: "M.19/3-b", cevapTip: "evet_hayir" },
+              { id: "o3o_tv", t: "Odalarda televizyon var mı?", r: "M.19/3-c", cevapTip: "evet_hayir" },
+              { id: "o3o_sac", t: "Odalarda saç kurutma makinesi var mı?", r: "M.19/3-ç", cevapTip: "evet_hayir" },
+              { id: "o3o_ofis", t: "Yatak katlarında kat hizmetleri ofisi veya dolabı var mı?", r: "M.19/3-d", cevapTip: "evet_hayir" }
+            ]
+          },
+          {
+            id: "o3o_yeni", ad: "3 Yıldıza Özel Yeni Şartlar (M.19/4)", tip: "normal",
+            maddeler: [
+              { id: "o3o_kahvalti", t: "Kahvaltı salonu var mı? (yeterli oturma alanı + servis mutfağı veya lokanta bu amaçla kullanılabilir)", r: "M.19/4-a", cevapTip: "evet_hayir",
+                kosulNot: "Yazlık tesislerde bu amaçla kullanılan salonun bir kısmı açık olabilir" },
+              { id: "o3o_klima_genel", t: "Genel mahallerde iklim koşullarına göre klima var mı?", r: "M.19/4-b", cevapTip: "var_yok_na",
+                kosulNot: "Klima şartı olan illerde zorunlu, diğerlerinde Uygulanmaz seçin" },
+              { id: "o3o_sandalye", t: "Odalarda en az bir sandalye veya koltuk ve valizlik var mı?", r: "M.19/4-c", cevapTip: "evet_hayir" },
+              { id: "o3o_kasa", t: "Odalarda kıymetli eşya kasası var mı?", r: "M.19/4-ç", cevapTip: "evet_hayir" },
+              { id: "o3o_internet", t: "Genel mahallerde internet hizmeti var mı?", r: "M.19/4-d", cevapTip: "evet_hayir" },
+              { id: "o3o_camasir", t: "Çamaşır yıkama ve ütüleme hizmeti + çamaşır torbası ve fiyat listesi var mı?", r: "M.19/4-e", cevapTip: "evet_hayir" },
+              { id: "o3o_ruzgarlik", t: "Girişte rüzgarlık, hava perdesi, döner kapı veya benzeri düzenleme var mı?", r: "M.19/4-f", cevapTip: "evet_hayir" }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  { id: "otel_2", ad: "2 Yıldızlı Otel", aciklama: "Madde 19/3 — En az 10 odalı, yönetim odası, odalarda TV ve saç kurutma makinesi bulunan otel", ikon: "⭐", hazir: true,
+    bilgiAlanlari: [
+      { key: "tesisAdi", label: "Tesisin Adı", required: true },
+      { key: "adres", label: "Adresi" },
+      { key: "telefon", label: "Telefon / Faks" },
+      { key: "belgeNo", label: "Belge Tarih ve No" },
+      { key: "belgeSahibi", label: "Belge Sahibi / Girişimci" },
+      { key: "denetimNedeni", label: "Denetleme Nedeni" },
+      { key: "denetimTarihi", label: "Denetleme Tarihi", type: "date", required: true },
+      { key: "odaSayisi", label: "Oda Sayısı", type: "number" },
+      { key: "yatakKapasitesi", label: "Yatak Kapasitesi", type: "number" },
+      { key: "kontrolorAdi", label: "Kontrolör Adı" }
+    ],
+    bolumler: [
+      {
+        id: "o2_genel",
+        ad: "Bölüm 1 — Genel Asgari Nitelikler",
+        altbaslik: "Tüm turizm tesislerine ortak (Madde 13-17)",
+        gruplar: [
+          {
+            id: "o2g_yerlesme", ad: "Yerleşme ve Yapı (M.13)", tip: "normal",
+            maddeler: [
+              { id: "o2g13_1", t: "Mahaller kullanım amacına uygun ölçülerde mi?", r: "M.13/1", cevapTip: "evet_hayir" },
+              { id: "o2g13_2", t: "Tefriş ve donanım elemanları kaliteli ve nitelikli mi?", r: "M.13/1", cevapTip: "evet_hayir" },
+              { id: "o2g13_3", t: "Dış cephe, iç duvar, zemin, tavan, çatı kaplamaları bakımlı ve nitelikli mi?", r: "M.13/1", cevapTip: "evet_hayir" },
+              { id: "o2g13_4", t: "Yapının tamamı belge kapsamında değilse, kapsam dışı yerler belgeli kısımdan ayrılmış mı?", r: "M.13/2", cevapTip: "evet_hayir" },
+              { id: "o2g13_5", t: "Bahçe varsa: özenle düzenlenmiş, aydınlatılmış ve bakımı sürekli sağlanıyor mu?", r: "M.13/6", cevapTip: "evet_hayir" },
+              { id: "o2g13_6", t: "Çevre aydınlatması mevcut mu?", r: "M.13/7", cevapTip: "evet_hayir" },
+              { id: "o2g13_7", t: "Farklı parsellerdeki üniteler arasında hizmet birliği ve fonksiyonel bağlantı sağlanmış mı?", r: "M.13/3", cevapTip: "evet_hayir",
+                kosulNot: "Farklı parselde ünite yoksa Uygulanmaz seçin" }
+            ]
+          },
+          {
+            id: "o2g_mahaller", ad: "Mahallerin Düzenlenmesi (M.14)", tip: "normal",
+            maddeler: [
+              { id: "o2g14_1", t: "Isıtma merkezi sistem ile sağlanıyor mu?", r: "M.14/3", cevapTip: "evet_hayir",
+                kosulNot: "2 yıldızlı otellerde klima ile ısıtma zorunlu değil, merkezi ısıtma yeterli" },
+              { id: "o2g14_2", t: "Tüm mekanlarda yeterli doğal veya mekanik havalandırma var mı?", r: "M.14/3", cevapTip: "evet_hayir" },
+              { id: "o2g14_3", t: "Devamlı sıcak ve soğuk su mevcut mu?", r: "M.14/3", cevapTip: "evet_hayir" },
+              { id: "o2g14_4", t: "Jeneratör mevcut mu? (kapasite 100 kişi/yatak üzerindeyse zorunlu)", r: "M.14/4", cevapTip: "var_yok_na",
+                kosulNot: "Kapasite 100 altındaysa Uygulanmaz seçin" }
+            ]
+          },
+          {
+            id: "o2g_personel", ad: "Personel Mahalleri (M.15)", tip: "normal",
+            maddeler: [
+              { id: "o2g15_1", t: "20 oda üzeri: Personel için bay/bayan ayrı soyunma yeri, dolap, duş ve tuvalet var mı?", r: "M.15/2", cevapTip: "evet_hayir",
+                kosulNot: "20 oda altındaysa aşağıdaki maddeye bakın" },
+              { id: "o2g15_2", t: "20 oda altı: Personel için tuvalet ve lavabo var mı? (kadın-erkek ortak olabilir)", r: "M.15/2", cevapTip: "evet_hayir",
+                kosulNot: "20 oda ve üzerindeyse yukarıdaki maddeye bakın" },
+              { id: "o2g15_3", t: "60 oda üzeri: Personelin ortak oturma, dinlenme ve yemek mahalli var mı?", r: "M.15/2", cevapTip: "var_yok_na",
+                kosulNot: "60 oda altındaysa Uygulanmaz seçin" },
+              { id: "o2g15_4", t: "Personel görev mahallerine uygun, özel ve temiz kıyafetli mi?", r: "M.15/4", cevapTip: "evet_hayir" },
+              { id: "o2g15_5", t: "İlk yardım konusunda sertifikalı personel mevcut mu?", r: "M.15/5", cevapTip: "evet_hayir" }
+            ]
+          },
+          {
+            id: "o2g_saglik", ad: "Sağlık, Temizlik, Güvenlik, Çevre (M.17)", tip: "normal",
+            maddeler: [
+              { id: "o2g17_1", t: "Hijyen ve sağlık kurallarına uyuluyor mu?", r: "M.17/1", cevapTip: "evet_hayir" },
+              { id: "o2g17_2", t: "İlkyardım malzemeleri bulunduruluyor mu?", r: "M.17/2", cevapTip: "evet_hayir" },
+              { id: "o2g17_3", t: "Düzenli temizlik ve bakım sağlanıyor mu?", r: "M.17/3", cevapTip: "evet_hayir" },
+              { id: "o2g17_4", t: "Periyodik haşere mücadelesi yapılıyor mu? (son fatura/sözleşme)", r: "M.17/3", cevapTip: "evet_hayir" },
+              { id: "o2g17_5", t: "Geri dönüşüm kutuları mevcut mu?", r: "M.17/4", cevapTip: "evet_hayir" },
+              { id: "o2g17_6", t: "Çöplerin muhafazası uygun mu?", r: "M.17/4", cevapTip: "evet_hayir" },
+              { id: "o2g17_7", t: "Güvenlik önlemleri (elektronik ve fiziki) alınmış mı?", r: "M.17/5", cevapTip: "evet_hayir" },
+              { id: "o2g17_8", t: "Tesisat, elektrik ve mekanik donanım standartlara uygun ve bakımlı mı?", r: "M.17/5", cevapTip: "evet_hayir" }
+            ]
+          },
+          {
+            id: "o2g_tanitim", ad: "Tanıtım ve Bilgilendirme (M.16)", tip: "normal",
+            maddeler: [
+              { id: "o2g16_1", t: "Bakanlık plaketi tesis girişinde görünür yerde mi?", r: "M.16/1", cevapTip: "evet_hayir" },
+              { id: "o2g16_2", t: "Tanıtım belgeye uygun mu? Yanıltıcı bilgi içermiyor mu?", r: "M.16/2", cevapTip: "evet_hayir" },
+              { id: "o2g16_3", t: "Tesis isminde kapasitede yer almayan ünitelere ilişkin terim kullanılıyor mu?", r: "M.16/3", cevapTip: "evet_hayir",
+                kosulNot: "Hayır olması gerekir — terim kullanılmamalıdır" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "o2_konaklama",
+        ad: "Bölüm 2 — Konaklama Tesisi Asgari Nitelikleri",
+        altbaslik: "Madde 18 — Konaklama tesislerinin asgari nitelikleri",
+        gruplar: [
+          {
+            id: "o2k_genel", ad: "Genel Konaklama (M.18, M.19/3)", tip: "normal",
+            maddeler: [
+              { id: "o2k_oda", t: "Oda sayısı kaç?", r: "M.19/3", cevapTip: "sayi", unit: "adet",
+                kural: { tip: "sayi_min", min: 10, mesaj: "2 yıldızlı otellerde en az 10 oda zorunludur (M.19/3)" } }
+            ]
+          },
+          {
+            id: "o2k_yatak", ad: "Yatak Odaları (M.18/1-a)", tip: "normal",
+            maddeler: [
+              { id: "o2k18_isik", t: "Yatak odaları doğal ışık alacak şekilde düzenlenmiş mi?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o2k18_banyo", t: "Yatak odaları banyolu mu?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o2k18_yatak", t: "Odalarda yatak, yastık, yastık kılıfı, nevresim, pike/yorgan var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o2k18_perde", t: "Odalarda tül perde ve kalın perde (veya benzeri düzenleme) var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o2k18_aydinlatma", t: "Odalarda genel aydınlatma, gece lambası ve priz var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o2k18_sehpa", t: "Yatak başucu sehpası veya benzeri düzenleme var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o2k18_dolap", t: "Elbise dolabı veya benzeri düzenleme var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o2k18_cop", t: "Odalarda çöp kutusu var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o2k18_zemin", t: "Nitelikli zemin kaplaması var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o2k18_kilit", t: "Oda kapılarında elektronik kilit veya ilave kilit sistemi var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o2k18_dedektor", t: "Odalarda duman dedektörü var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o2k18_klima", t: "Odalarda iklim koşullarına göre klima var mı?", r: "M.18/1-a/1", cevapTip: "var_yok_na",
+                kosulNot: "2 yıldızlı otellerde klima zorunlu değildir — Uygulanmaz seçebilirsiniz" },
+              { id: "o2k18_mutfak_yok", t: "Yatak odalarında mutfak veya mutfak nişi düzenlemesi yapılmamış mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir",
+                kosulNot: "Evet olması gerekir — yatak odalarında mutfak nişi düzenlenmez" }
+            ]
+          },
+          {
+            id: "o2k_banyo", ad: "Banyo (M.18/1-a)", tip: "normal",
+            maddeler: [
+              { id: "o2k18_b_su", t: "Banyolarda suyun yayılımını engelleyici önlemler alınmış mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o2k18_b_vitrifiye", t: "Banyolarda vitrifiye, armatür, batarya, duş donanımı var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o2k18_b_ayna", t: "Banyolarda ayna var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o2k18_b_priz", t: "Banyolarda priz var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o2k18_b_cop", t: "Banyolarda çöp kutusu var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o2k18_b_sabun", t: "Banyolarda sabun ve şampuan var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "o2k18_b_havlu", t: "Banyolarda el, banyo ve ayak havlusu (3 havlu) var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" }
+            ]
+          },
+          {
+            id: "o2k_diger", ad: "Diğer Konaklama Nitelikleri (M.18)", tip: "normal",
+            maddeler: [
+              { id: "o2k_asansor", t: "Müşteri asansörü gerekli mi ve var mı? (3 kattan fazla inilip çıkılıyorsa zorunlu)", r: "M.18/1-c", cevapTip: "var_yok_na",
+                kosulNot: "3 kat veya altındaysa Uygulanmaz seçin. Korunması gerekli taşınmazlarda zorunlu değildir." },
+              { id: "o2k_asansor_alarm", t: "Asansör varsa: alarm tertibatı ve havalandırma düzeneği var mı?", r: "M.18/1-c", cevapTip: "var_yok_na",
+                kosulNot: "Asansör yoksa Uygulanmaz seçin" },
+              { id: "o2k_yangin", t: "Yangın merdiveni düzenlemesi var mı?", r: "Genel", cevapTip: "var_yok_na" },
+              { id: "o2k_taban", t: "Yatak odaları mevcut arazi seviyesinin altında kalmıyor mu?", r: "M.18/1-a/5", cevapTip: "evet_hayir",
+                kosulNot: "Evet olması gerekir — bodrum katta oda olamaz" },
+              { id: "o2k_engelli", t: "Engelli düzenlemesi yapılmış mı? (80 oda üzeri tesislerde zorunlu)", r: "M.18/1-b", cevapTip: "var_yok_na",
+                kosulNot: "80 oda altındaysa Uygulanmaz seçin" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "o2_ozel",
+        ad: "Bölüm 3 — 2 Yıldızlı Otel Özel Nitelikleri",
+        altbaslik: "Madde 19/3 — 1 yıldız niteliklerine ilave olarak",
+        gruplar: [
+          {
+            id: "o2o_ozel", ad: "2 Yıldız Özel Şartlar (M.19/3)", tip: "normal",
+            maddeler: [
+              { id: "o2o_resepsiyon", t: "Resepsiyon ve bekleme bölümünden oluşan lobi var mı?", r: "M.19/2-b", cevapTip: "evet_hayir" },
+              { id: "o2o_oturma", t: "Oturma alanı ve sıcak-soğuk içecek hizmeti var mı?", r: "M.19/2-c", cevapTip: "evet_hayir" },
+              { id: "o2o_yonetim", t: "Yönetim odası var mı?", r: "M.19/3-b", cevapTip: "evet_hayir" },
+              { id: "o2o_tv", t: "Odalarda televizyon var mı?", r: "M.19/3-c", cevapTip: "evet_hayir" },
+              { id: "o2o_sac", t: "Odalarda saç kurutma makinesi var mı?", r: "M.19/3-ç", cevapTip: "evet_hayir" },
+              { id: "o2o_ofis", t: "Yatak katlarında kat hizmetleri ofisi veya dolabı var mı?", r: "M.19/3-d", cevapTip: "evet_hayir" }
+            ]
+          },
+          {
+            id: "o2o_istisna", ad: "2 Yıldız İstisnaları — Bilgi Amaçlı", tip: "normal",
+            maddeler: [
+              { id: "o2o_not1", t: "NOT: 2 yıldızlı otellerde erkek-kadın için ayrı genel tuvalet zorunlu değildir (M.14/2 istisnası)", r: "M.14/2", cevapTip: "metin",
+                kosulNot: "Bilgi amaçlı — zorunlu değildir, varsa not edin" },
+              { id: "o2o_not2", t: "NOT: 2 yıldızlı otellerde odalarda klima zorunlu değildir", r: "M.18/1-a/1", cevapTip: "metin",
+                kosulNot: "Bilgi amaçlı — zorunlu değildir" },
+              { id: "o2o_not3", t: "NOT: 2 yıldızlı otellerde odalarda telefon zorunlu değildir", r: "M.18/1-a/1", cevapTip: "metin",
+                kosulNot: "Bilgi amaçlı — zorunlu değildir" }
+            ]
+          }
+        ]
+      }
+    ]
+  },
   { id: "otel_1", ad: "1 Yıldızlı Otel", aciklama: "Madde 19/2 — En az 5 odalı, resepsiyon ve oturma alanı bulunan otel", ikon: "⭐", hazir: true,
     bilgiAlanlari: [
       { key: "tesisAdi", label: "Tesisin Adı", required: true },
@@ -1396,12 +1961,13 @@ async function refreshHome() {
     const isComplete = stats.bos === 0;
     const statClass = stats.toplamCevap === 0 ? "stat-neutral" : (stats.pct >= 70 ? "stat-good" : "stat-bad");
     const statText = stats.toplamCevap === 0 ? "—" : "%" + stats.pct;
-    return `<div class="denetim-card ${isComplete ? 'completed' : ''}" onclick="openDenetim('${d.id}')">
-      <div class="denetim-card-body">
+    return `<div class="denetim-card ${isComplete ? 'completed' : ''}">
+      <div class="denetim-card-body" onclick="openDenetim('${d.id}')">
         <div class="denetim-card-title">${escapeHtml(titleText)}</div>
         <div class="denetim-card-meta">${escapeHtml(turText)} · ${dateText} · ${stats.olumsuz} eksik</div>
       </div>
-      <div class="denetim-card-stat ${statClass}">${statText}</div>
+      <div class="denetim-card-stat ${statClass}" onclick="openDenetim('${d.id}')">${statText}</div>
+      <button class="denetim-card-delete" onclick="confirmDeleteDenetim('${d.id}', event)" title="Sil">🗑️</button>
     </div>`;
   }).join("");
 }
@@ -1418,6 +1984,61 @@ function goHome() {
     refreshHome();
     showScreen("screen-home");
   }
+}
+
+// ==================== SILME ====================
+function deleteDenetimFromDB(id) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction("denetimler", "readwrite");
+    tx.objectStore("denetimler").delete(id);
+    tx.oncomplete = () => res();
+    tx.onerror = (e) => rej(e);
+  });
+}
+
+async function confirmDeleteDenetim(id, event) {
+  if (event) event.stopPropagation();
+  const d = await getDenetim(id);
+  if (!d) return;
+  const ad = d.bilgi.tesisAdi || "İsimsiz Tesis";
+  pendingDeleteId = id;
+  document.getElementById("deleteConfirmName").textContent = ad;
+  document.getElementById("deleteConfirmModal").classList.add("open");
+}
+
+let pendingDeleteId = null;
+
+function closeDeleteConfirm() {
+  pendingDeleteId = null;
+  document.getElementById("deleteConfirmModal").classList.remove("open");
+}
+
+async function executeDeleteDenetim() {
+  if (!pendingDeleteId) return;
+  const id = pendingDeleteId;
+  pendingDeleteId = null;
+  try {
+    await deleteDenetimFromDB(id);
+    // Eğer aktif denetim ise kapat
+    if (currentDenetim && currentDenetim.id === id) {
+      currentDenetim = null;
+      currentSablon = null;
+      showScreen("screen-home");
+    }
+    closeDeleteConfirm();
+    await refreshHome();
+    toast("Denetim silindi");
+  } catch (e) {
+    toast("Silme başarısız: " + e.message);
+    closeDeleteConfirm();
+  }
+}
+
+function confirmDeleteCurrent() {
+  if (!currentDenetim) return;
+  pendingDeleteId = currentDenetim.id;
+  document.getElementById("deleteConfirmName").textContent = currentDenetim.bilgi.tesisAdi || "İsimsiz Tesis";
+  document.getElementById("deleteConfirmModal").classList.add("open");
 }
 
 // ==================== TUR SECIMI ====================
