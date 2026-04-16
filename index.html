@@ -366,7 +366,7 @@ html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink);
 <div class="screen active" id="screen-home">
   <div class="hero">
     <div class="hero-inner">
-      <div class="label">Turizm Bakanlığı</div>
+      <div class="label">Kültür ve Turizm Bakanlığı</div>
       <h2>Tesis Denetimi</h2>
       <p>Saha denetim asistanı</p>
     </div>
@@ -468,7 +468,7 @@ const SABLONLAR = [
       { key: "denetimNedeni", label: "Denetleme Nedeni" },
       { key: "denetimTarihi", label: "Denetleme Tarihi", type: "date", required: true },
       { key: "kapasite", label: "Müşteri Kapasitesi (kişi)", type: "number" },
-      { key: "denetciAdi", label: "Denetçi Adı" }
+      { key: "denetciAdi", label: "Kontrolör Adı" }
     ],
     bolumler: [
       // === BÖLÜM 1: GENEL ASGARİ NİTELİKLER (Madde 13-17, tüm tesislere ortak) ===
@@ -713,7 +713,152 @@ const SABLONLAR = [
   { id: "butik_otel", ad: "Butik Otel", aciklama: "Madde 21", ikon: "🏛️", hazir: false, bilgiAlanlari: [], bolumler: [] },
   { id: "ozel_konaklama", ad: "Özel Konaklama Tesisi", aciklama: "Madde 22", ikon: "🏰", hazir: false, bilgiAlanlari: [], bolumler: [] },
   { id: "motel", ad: "Motel", aciklama: "Madde 23", ikon: "🛏️", hazir: false, bilgiAlanlari: [], bolumler: [] },
-  { id: "pansiyon", ad: "Pansiyon", aciklama: "Madde 24", ikon: "🏠", hazir: false, bilgiAlanlari: [], bolumler: [] },
+  { id: "pansiyon", ad: "Pansiyon", aciklama: "Madde 24 — En az 3, en fazla 25 odalı yönetimi basit konaklama tesisleri", ikon: "🏠", hazir: true,
+    bilgiAlanlari: [
+      { key: "tesisAdi", label: "Tesisin Adı", required: true },
+      { key: "adres", label: "Adresi" },
+      { key: "telefon", label: "Telefon / Faks" },
+      { key: "belgeNo", label: "Belge Tarih ve No" },
+      { key: "belgeSahibi", label: "Belge Sahibi / Girişimci" },
+      { key: "denetimNedeni", label: "Denetleme Nedeni" },
+      { key: "denetimTarihi", label: "Denetleme Tarihi", type: "date", required: true },
+      { key: "odaSayisi", label: "Oda Sayısı", type: "number" },
+      { key: "yatakKapasitesi", label: "Yatak Kapasitesi", type: "number" },
+      { key: "kontrolorAdi", label: "Kontrolör Adı" }
+    ],
+    bolumler: [
+      {
+        id: "p_genel",
+        ad: "Bölüm 1 — Genel Asgari Nitelikler",
+        altbaslik: "Tüm turizm tesislerine ortak (Madde 13-17)",
+        gruplar: [
+          {
+            id: "pg_yerlesme", ad: "Yerleşme ve Yapı (M.13)", tip: "normal",
+            maddeler: [
+              { id: "pg13_1", t: "Mahaller kullanım amacına uygun ölçülerde mi?", r: "M.13/1", cevapTip: "evet_hayir" },
+              { id: "pg13_2", t: "Tefriş ve donanım elemanları kaliteli ve nitelikli mi?", r: "M.13/1", cevapTip: "evet_hayir" },
+              { id: "pg13_3", t: "Dış cephe, iç duvar, zemin, tavan, çatı kaplamaları bakımlı ve nitelikli mi?", r: "M.13/1", cevapTip: "evet_hayir" },
+              { id: "pg13_4", t: "Yapının tamamı belge kapsamında değilse, kapsam dışı yerler belgeli kısımdan ayrılmış mı?", r: "M.13/2", cevapTip: "evet_hayir" },
+              { id: "pg13_5", t: "Bahçe varsa: özenle düzenlenmiş, aydınlatılmış ve bakımı sürekli sağlanıyor mu?", r: "M.13/6", cevapTip: "evet_hayir" },
+              { id: "pg13_6", t: "Çevre aydınlatması mevcut mu?", r: "M.13/7", cevapTip: "evet_hayir" },
+              { id: "pg13_7", t: "Farklı parsellerdeki üniteler arasında hizmet ve işletme birliği ile fonksiyonel bağlantı sağlanmış mı?", r: "M.13/3", cevapTip: "evet_hayir",
+                kosulNot: "Farklı parselde ünite yoksa Uygulanmaz seçin" }
+            ]
+          },
+          {
+            id: "pg_mahaller", ad: "Mahallerin Düzenlenmesi (M.14)", tip: "normal",
+            maddeler: [
+              { id: "pg14_1", t: "Isıtma merkezi sistem ile sağlanıyor mu?", r: "M.14/3", cevapTip: "evet_hayir",
+                kosulNot: "Pansiyonlarda klima ile ısıtma zorunlu değildir. Merkezi ısıtma yeterli." },
+              { id: "pg14_2", t: "Tüm mekanlarda yeterli doğal veya mekanik havalandırma var mı?", r: "M.14/3", cevapTip: "evet_hayir" },
+              { id: "pg14_3", t: "Devamlı sıcak ve soğuk su mevcut mu?", r: "M.14/3", cevapTip: "evet_hayir" },
+              { id: "pg14_4", t: "Jeneratör mevcut mu? (kapasite 100 kişi/yatak üzerindeyse zorunlu)", r: "M.14/4", cevapTip: "var_yok_na",
+                kosulNot: "Kapasite 100 altındaysa Uygulanmaz seçin" }
+            ]
+          },
+          {
+            id: "pg_saglik", ad: "Sağlık, Temizlik, Güvenlik, Çevre (M.17)", tip: "normal",
+            maddeler: [
+              { id: "pg17_1", t: "Hijyen ve sağlık kurallarına uyuluyor mu?", r: "M.17/1", cevapTip: "evet_hayir" },
+              { id: "pg17_2", t: "İlkyardım malzemeleri bulunduruluyor mu?", r: "M.17/2", cevapTip: "evet_hayir" },
+              { id: "pg17_3", t: "Düzenli temizlik ve bakım sağlanıyor mu?", r: "M.17/3", cevapTip: "evet_hayir" },
+              { id: "pg17_4", t: "Periyodik haşere mücadelesi yapılıyor mu? (son fatura/sözleşme)", r: "M.17/3", cevapTip: "evet_hayir" },
+              { id: "pg17_5", t: "Geri dönüşüm kutuları mevcut mu? (kağıt, cam, metal, plastik)", r: "M.17/4", cevapTip: "evet_hayir" },
+              { id: "pg17_6", t: "Çöplerin muhafazası uygun mu? (koku, pislik, haşarat yapmayacak şekilde)", r: "M.17/4", cevapTip: "evet_hayir" },
+              { id: "pg17_7", t: "Güvenlik önlemleri (elektronik ve fiziki) alınmış mı?", r: "M.17/5", cevapTip: "evet_hayir" },
+              { id: "pg17_8", t: "Tesisat, elektrik ve mekanik donanım standartlara uygun ve bakımlı mı?", r: "M.17/5", cevapTip: "evet_hayir" }
+            ]
+          },
+          {
+            id: "pg_tanitim", ad: "Tanıtım ve Bilgilendirme (M.16)", tip: "normal",
+            maddeler: [
+              { id: "pg16_1", t: "Bakanlık plaketi tesis girişinde görünür yerde mi?", r: "M.16/1", cevapTip: "evet_hayir" },
+              { id: "pg16_2", t: "Tanıtım belgeye uygun mu? Yanıltıcı bilgi içermiyor mu?", r: "M.16/2", cevapTip: "evet_hayir" },
+              { id: "pg16_3", t: "Tesis isminde kapasitede yer almayan ünitelere ilişkin terim kullanılıyor mu?", r: "M.16/3", cevapTip: "evet_hayir",
+                kosulNot: "Hayır olması gerekir — terim kullanılmamalıdır" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "p_konaklama",
+        ad: "Bölüm 2 — Konaklama Tesisi Asgari Nitelikleri",
+        altbaslik: "Madde 18 — Konaklama tesislerinin asgari nitelikleri",
+        gruplar: [
+          {
+            id: "pk_genel", ad: "Genel Konaklama (M.18)", tip: "normal",
+            maddeler: [
+              { id: "pk18_oda", t: "Oda sayısı kaç?", r: "M.24/1", cevapTip: "sayi", unit: "adet",
+                kural: { tip: "sayi_min", min: 3, mesaj: "Pansiyonlarda en az 3 oda zorunludur (M.24/1)" } },
+              { id: "pk18_oda_max", t: "Oda sayısı 25'i aşıyor mu?", r: "M.24/1", cevapTip: "evet_hayir",
+                kosulNot: "Hayır olması gerekir — pansiyon en fazla 25 oda olabilir" }
+            ]
+          },
+          {
+            id: "pk_yatak_odasi", ad: "Yatak Odaları (M.18/1-a)", tip: "normal",
+            maddeler: [
+              { id: "pk18_isik", t: "Yatak odaları doğal ışık alacak şekilde düzenlenmiş mi?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "pk18_banyo", t: "Yatak odaları banyolu mu?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "pk18_yatak", t: "Odalarda yatak, yastık, yastık kılıfı, nevresim, pike/yorgan var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "pk18_perde", t: "Odalarda tül perde ve kalın perde (veya benzeri düzenleme) var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "pk18_aydinlatma", t: "Odalarda genel aydınlatma, gece lambası ve priz var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "pk18_sehpa", t: "Odalarda yatak başucu sehpası veya benzeri düzenleme var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "pk18_dolap", t: "Odalarda elbise dolabı veya benzeri düzenleme var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "pk18_cop", t: "Odalarda çöp kutusu var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "pk18_zemin", t: "Odalarda nitelikli zemin kaplaması var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "pk18_kilit", t: "Oda kapılarında elektronik kilit veya ilave kilit sistemi var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "pk18_dedektor", t: "Odalarda duman dedektörü var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "pk18_mutfak_yok", t: "Yatak odalarında mutfak veya mutfak nişi düzenlemesi yapılmamış mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir",
+                kosulNot: "Evet olması gerekir — yatak odalarında mutfak nişi düzenlenmez" }
+            ]
+          },
+          {
+            id: "pk_banyo", ad: "Banyo (M.18/1-a)", tip: "normal",
+            maddeler: [
+              { id: "pk18_b_su", t: "Banyolarda suyun yayılımını engelleyici önlemler alınmış mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "pk18_b_vitrifiye", t: "Banyolarda vitrifiye, armatür, batarya, duş donanımı var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "pk18_b_ayna", t: "Banyolarda ayna var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "pk18_b_priz", t: "Banyolarda priz var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "pk18_b_cop", t: "Banyolarda çöp kutusu var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "pk18_b_sabun", t: "Banyolarda sabun ve şampuan var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" },
+              { id: "pk18_b_havlu", t: "Banyolarda el, banyo ve ayak havlusu (3 havlu) var mı?", r: "M.18/1-a/1", cevapTip: "evet_hayir" }
+            ]
+          },
+          {
+            id: "pk_diger", ad: "Diğer Konaklama Nitelikleri (M.18)", tip: "normal",
+            maddeler: [
+              { id: "pk18_bilgi", t: "Oda ve tesise ilişkin bilgilendirici doküman var mı?", r: "M.18", cevapTip: "evet_hayir" },
+              { id: "pk18_asansor", t: "Müşteri asansörü gerekli mi ve var mı? (3 kattan fazla inilip çıkılıyorsa zorunlu)", r: "M.18/1-c", cevapTip: "var_yok_na",
+                kosulNot: "3 kat veya altındaysa Uygulanmaz seçin" },
+              { id: "pk18_yangin", t: "Yangın merdiveni düzenlemesi var mı?", r: "Genel", cevapTip: "var_yok_na" },
+              { id: "pk18_taban", t: "Yatak odaları mevcut arazi seviyesinin altında kalmıyor mu?", r: "M.18/1-a/5", cevapTip: "evet_hayir",
+                kosulNot: "Evet olması gerekir — bodrum katta oda olamaz" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "p_pansiyon",
+        ad: "Bölüm 3 — Pansiyon Özel Nitelikleri",
+        altbaslik: "Madde 24 — Pansiyona özel hükümler ve istisnalar",
+        gruplar: [
+          {
+            id: "pp_istisna", ad: "Pansiyon İstisnaları — Bilgi Amaçlı", tip: "normal",
+            maddeler: [
+              { id: "pp_not1", t: "NOT: Pansiyonlarda erkek-kadın için ayrı genel tuvalet zorunlu değildir (M.14/2 istisnası)", r: "M.14/2", cevapTip: "metin",
+                kosulNot: "Bilgi amaçlı — zorunlu değildir, varsa not edin" },
+              { id: "pp_not2", t: "NOT: Pansiyonlarda personel mahalli düzenlenmesi zorunlu değildir (M.15/2 istisnası)", r: "M.15/2", cevapTip: "metin",
+                kosulNot: "Bilgi amaçlı — zorunlu değildir, varsa not edin" },
+              { id: "pp_not3", t: "NOT: Pansiyonlarda odalarda klima zorunlu değildir", r: "M.18/1-a/1", cevapTip: "metin",
+                kosulNot: "Bilgi amaçlı — zorunlu değildir" },
+              { id: "pp_not4", t: "NOT: Pansiyonlarda odalarda telefon zorunlu değildir", r: "M.18/1-a/1", cevapTip: "metin",
+                kosulNot: "Bilgi amaçlı — zorunlu değildir" }
+            ]
+          }
+        ]
+      }
+    ]
+  },
   { id: "apart_otel", ad: "Apart Otel", aciklama: "Madde 25", ikon: "🏢", hazir: false, bilgiAlanlari: [], bolumler: [] },
   { id: "termal", ad: "Termal Tesis", aciklama: "Madde 27", ikon: "♨️", hazir: false, bilgiAlanlari: [], bolumler: [] },
   { id: "saglikli_yasam", ad: "Sağlıklı Yaşam Tesisi", aciklama: "Madde 28", ikon: "🧖", hazir: false, bilgiAlanlari: [], bolumler: [] },
@@ -1775,7 +1920,7 @@ function exportPDF(returnBlob = false) {
   y += 10;
   doc.setFontSize(10);
   doc.setFont("helvetica", "bold");
-  doc.text(tr("Denetci:"), margin, y);
+  doc.text(tr("Kontrolor:"), margin, y);
   doc.text(tr("Tesis Yetkilisi:"), 120, y);
   doc.setLineWidth(0.3);
   doc.line(margin, y + 14, margin + 60, y + 14);
@@ -1882,7 +2027,7 @@ async function exportWord() {
   }
   
   const imzaP = new Paragraph({
-    children: [new TextRun({ text: "\n\nDenetçi: " + (d.bilgi.denetciAdi || "_______________") + "        Tesis Yetkilisi: _______________", size: 20 })],
+    children: [new TextRun({ text: "\n\nKontrolor: " + (d.bilgi.denetciAdi || "_______________") + "        Tesis Yetkilisi: _______________", size: 20 })],
     spacing: { before: 600 }
   });
   
