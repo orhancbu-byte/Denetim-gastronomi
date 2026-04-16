@@ -1423,7 +1423,19 @@ function goHome() {
 // ==================== TUR SECIMI ====================
 function openTurSecimi() {
   const list = document.getElementById("turList");
-  list.innerHTML = SABLONLAR.map(s => {
+  // Sıralama: hazır olanlar önce (istenen sırada), sonra hazır olmayanlar
+  const hazirSira = ["pansiyon", "apart_otel", "gastronomi", "otel_1", "otel_2", "otel_3", "otel_4", "otel_5"];
+  const sorted = [...SABLONLAR].sort((a, b) => {
+    if (a.hazir && !b.hazir) return -1;
+    if (!a.hazir && b.hazir) return 1;
+    if (a.hazir && b.hazir) {
+      const ia = hazirSira.indexOf(a.id);
+      const ib = hazirSira.indexOf(b.id);
+      return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+    }
+    return 0;
+  });
+  list.innerHTML = sorted.map(s => {
     const cls = s.hazir ? "" : "disabled";
     const meta = s.hazir ? `<div class="tur-card-meta">${escapeHtml(s.aciklama)}</div>`
                         : `<div class="tur-card-meta soon">Yakında — ${escapeHtml(s.aciklama)}</div>`;
