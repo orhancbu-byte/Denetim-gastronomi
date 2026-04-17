@@ -1,1 +1,1 @@
-# Denetim-asistanı
+# Inspection-Intelligence-Platform
